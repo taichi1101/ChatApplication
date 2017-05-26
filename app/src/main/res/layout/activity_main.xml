@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#acf"
+    tools:context=".MainActivity"
+    >
+
+
+    <android.support.v7.widget.Toolbar
+
+        android:id="@+id/tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        >
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#fff"
+            android:paddingLeft="10dp"
+            />
+        <Switch
+            android:paddingLeft="60dp"
+            android:id="@+id/swtOnOff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onSwitchClicked"
+            />
+    </android.support.v7.widget.Toolbar>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="20dp">
+
+    <ListView
+        android:id="@+id/list_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        ></ListView>
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:gravity="center"
+        android:background="#8af"
+        android:orientation="horizontal"
+        android:layout_margin="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <EditText
+            android:id="@+id/Transmission"
+            android:inputType="text"
+        android:layout_width="275dp"
+            android:layout_height="40dp"
+            android:hint="コメントを入力してください"
+            />
+
+        <Button
+            android:id="@+id/buttonTransmission"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:layout_toRightOf="@+id/Transmission"
+            android:text="送信"
+            />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+        <item
+            android:id="@+id/action_nowscreenset"
+            android:orderInCategory="1"
+            android:title="表示画面を登録"
+
+            />
+        <item
+            android:id="@+id/action_setlogin"
+            android:orderInCategory="2"
+            android:title="ログイン/ログアウト/新規登録"
+            />
+
+    <item
+        android:id="@+id/action_deleteplace"
+        android:orderInCategory="3"
+        android:title="表示しているお気に入りを削除"
+        />
+
+    <item
+        android:id="@+id/action_updateplace"
+        android:orderInCategory="4"
+        android:title="表示しているお気に入りの名称変更"
+        />
+    <item
+        android:id="@+id/action_deleteuser"
+        android:orderInCategory="4"
+        android:title="使用しているuserを削除"
+        />
+    </menu>
