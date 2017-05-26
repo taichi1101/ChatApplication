@@ -10,14 +10,10 @@ import android.util.Log;
  * Created by endoutaichi on 2017/05/26.
  */
 
-public class favorite  extends Application {
-
-
+public class favorite   {
 
 
     String spinnerItems[];
-
-
     //--------------------------------------------------------favorite---------------------------------------------------------------------//
     //これをログインした時に usernameを使って、と、newPlaceをinsertしたあとに呼び出す、
     public String[] favorite(Context context,String username) {

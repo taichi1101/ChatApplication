@@ -125,7 +125,7 @@ public class LocationActivity extends AppCompatActivity implements
     private Spinner spinner;
     private TextView textViewSpinner;
     String spinnerItems[];
-    final ArrayList<String> listItems = new ArrayList<>();
+    ArrayList<String> listItems = new ArrayList<>();
 
     //--------------------------------static のクラス変数 usernameを定義、usernameをnullに----------------------------------------//
 
@@ -152,7 +152,7 @@ public class LocationActivity extends AppCompatActivity implements
         //nullになるから、ここでよんどく
         MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
         SQLiteDatabase db = helper.getWritableDatabase();
-        spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
+        //spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
 
     }
 

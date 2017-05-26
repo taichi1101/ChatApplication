@@ -162,11 +162,6 @@ public class select {
                 c.moveToNext();
 
 
-
-
-
-
-
             }
 
             // System.out.println("listItemsの配列のlength"+listItems.length);
