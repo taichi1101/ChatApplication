@@ -2916,6 +2916,10 @@ public class LocationActivity extends AppCompatActivity implements
            //adapter = new ArrayListAdapter(this, adapterlist);
            listView.setAdapter(adapter);
 
+
+
+
+
        }
 
 
