@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,193 +19,164 @@ import java.util.regex.Pattern;
 public class select {
 
 
-    public ArrayList<String> select(double latitude, double longitude,Context context) {
+    public ArrayList<User> select(double latitude, double longitude, Context context,ArrayList<User> adapterlist) {
 
-        final ArrayList<String> listItems = new ArrayList<>();
+       // final List<User> adapterlist= new ArrayList<User>();
 
-        listItems.clear();
+        if(adapterlist==null) {
+            System.out.println("adapterlistがnull");
 
-        MyOpenHelper helper = new MyOpenHelper(context);
-        SQLiteDatabase db = helper.getReadableDatabase();
+        }
+                ////////////
+          //  final ArrayList<String> listItems = new ArrayList<>();
 
 
-        double clearlatitude = 0.00002694944;
-        double clearlongitude = 0.00032899147;
+        adapterlist.clear();
 
+            MyOpenHelper helper = new MyOpenHelper(context);
+            SQLiteDatabase db = helper.getReadableDatabase();
+
+
+            double clearlatitude = 0.00002694944;
+            double clearlongitude = 0.00032899147;
 
         //idnumberを取得
-        String sql = "select data,username,comment,idnumber from neardb where latitude - " + latitude + " <= " + clearlatitude + " and "
-                + latitude + " - latitude <= " + clearlatitude +
-                " and longitude - " + longitude + " <= " + clearlongitude + " and "
-                + longitude + " - longitude <= " + clearlongitude + ";";
-
+            String sql = "select data,username,comment,idnumber from neardb where latitude - " + latitude + " <= " + clearlatitude + " and "
+                    + latitude + " - latitude <= " + clearlatitude +
+                    " and longitude - " + longitude + " <= " + clearlongitude + " and "
+                    + longitude + " - longitude <= " + clearlongitude + ";";
 
         Cursor c = db.rawQuery(sql, null);
+                    c.moveToFirst();
 
-        c.moveToFirst();
+        if(c.getCount()!=0) {
+                String checkdata = "初期値";
 
+                for (int i = 0; i < c.getCount(); i++) {
+                    //SQL文の結果から、必要な値を取り出す
+                    String date = c.getString(0);
+                    String name = c.getString(1);
+                    String comment = c.getString(2);
+                    String idnumber = c.getString(3);
 
+                   // String in = "";
 
-        if (c.getCount()!=0) {
+                    if (i == 0) {
+                        //そして、dateの日付をcheckdateにいれる
+                        checkdata = date.substring(0, date.indexOf(":"));
 
-            Integer count = c.getCount();
-            String checkdata = "初期値";
+                        String str = date;
+                        String regex = ":";
+                        Pattern p = Pattern.compile(regex);
 
-
-            System.out.println("c.getCountやでーーな"+c.getCount());
-
-            for (int i = 0; i < c.getCount(); i++) {
-                //SQL文の結果から、必要な値を取り出す
-
-
-                String date = c.getString(0);
-                String name = c.getString(1);
-                String comment = c.getString(2);
-                String idnumber=c.getString(3);
-
-                String in = "";
-
-
-                if (i == 0) {
-                    //そして、dateの日付をcheckdateにいれる
-                    checkdata = date.substring(0, date.indexOf(":"));
-
-
-                    String str = date;
-                    String regex = ":";
-                    Pattern p = Pattern.compile(regex);
-
-                    Matcher m = p.matcher(str);
-                    date = m.replaceFirst(" ");
-                    ///////////これは最初のコメント//checkdataをセットする大事な役割
+                        Matcher m = p.matcher(str);
+                        date = m.replaceFirst(" ");
+                        ///////////これは最初のコメント//checkdataをセットする大事な役割
+                        //ここで、こんな感じで、inみたいにStringにして、adapterlistにセットするんじゃなくて、
+                        //変数にセットするようにする
+                        //ここを変える
+                        //  in += idnumber + " " + date + " " + name + "  " + comment + "\n";
+                        //この上の改行のせいで、あっちで手間取ってたんだな、まあいいや
+                        //listItems[i] = in;
+                        //String  user=String.valueOf(i);
+                        //  User user=(User)user;
+                        //ああああああああああ
 
 
-                    //ここを変える
-                    in += idnumber+" "+date + " " + name + "  " + comment + "\n";
+                        /**
+                        ListView listView = (ListView)findViewById(R.id.list_view);
+
+                        ArrayList<User> list = new ArrayList<>();
+                        ArrayListAdapter adapter = new ArrayListAdapter(select);
+                        adapter.setTweetList(list);
+                        listView.setAdapter(adapter);
+                         **/
+
+                        User user = new User();
+                        user.setData(date);
+                        user.setUsername(name);
+                        user.setComment(comment);
+                        user.setIdnumber(idnumber);
+                        adapterlist.add(user);
+                        // adapter.notifyDataSetChanged();
+                        ///////aaaaaaaaaaaaaaa
+                        // adapterlist.add(in);
+
+                    } else if (date.startsWith(checkdata)) { //checkdateは前のコメントの日付
+
+                        //前のコメントと日にちが同じ場合は月日を省く
+                        date = date.replaceAll(checkdata, "");
+
+                        String str = date;
+                        String regex = ":";
+
+                        //:が指定されてるから " "から文字にする
+                        //regex似ついてしらべる
+                        Pattern p = Pattern.compile(regex);
+
+                        Matcher m = p.matcher(str);
+                        date = m.replaceFirst(" ");
+                        //もともと date = m.replaceFirst("");
+                        // これはdateの中の2/20 4:3のスペースだから":"を" "にしっかりしとく
+
+                        //ここも、
+                       // in += idnumber + " " + " " + date + " " + name + "  " + comment + "\n";
+                        //スペースを一つきちんと""にする
+
+                        User user = new User();
+                        user.setData(date);
+                        user.setUsername(name);
+                        user.setComment(comment);
+                        user.setIdnumber(idnumber);
+                        adapterlist.add(user);
 
 
-                    //この上の改行のせいで、あっちで手間取ってたんだな、まあいいや
-                    //listItems[i] = in;
 
-                    listItems.add(in);
-
-                } else if (date.startsWith(checkdata)) { //checkdateは前のコメントの日付
-
-                    //前のコメントと日にちが同じ場合は月日を省く
-                    date = date.replaceAll(checkdata, "");
-
-                    String str = date;
-                    String regex = ":";
+                       //adapterlist.add(in);
 
 
-                    //:が指定されてるから " "から文字にする
-                    //regex似ついてしらべる
-                    Pattern p = Pattern.compile(regex);
+                    } else if (!(date.startsWith(checkdata))) {
 
-                    Matcher m = p.matcher(str);
-                    date = m.replaceFirst(" ");
-                    //もともと date = m.replaceFirst("");
-                    // これはdateの中の2/20 4:3のスペースだから":"を" "にしっかりしとく
+                        checkdata = date.substring(0, date.indexOf(":"));
 
-                    //ここも、
-                    in += idnumber+" "+" "+ date + " " + name + "  " + comment + "\n";
-                    //スペースを一つきちんと""にする
+                        String str = date;
+                        String regex = ":";
+                        Pattern p = Pattern.compile(regex);
 
 
-                    listItems.add(in);
+                        Matcher m = p.matcher(str);
+                        date = m.replaceFirst(" ");
 
 
-                } else if (!(date.startsWith(checkdata))) {
+                        //ここも、
+                        //in += idnumber + " " + date + " " + name + "  " + comment + "\n";
 
-                    checkdata = date.substring(0, date.indexOf(":"));
-
-                    String str = date;
-                    String regex = ":";
-                    Pattern p = Pattern.compile(regex);
-
-                    //ここら辺よくわかんないな
-                    //普通に:を""にしてるだけ？
-                    Matcher m = p.matcher(str);
-                    date = m.replaceFirst(" ");
+                        //adapterlist.add(in);
 
 
-                    //ここも、
-                    in += idnumber+" "+date + " " + name + "  " + comment + "\n";
+                        User user = new User();
+                        user.setData(date);
+                        user.setUsername(name);
+                        user.setComment(comment);
+                        user.setIdnumber(idnumber);
+                        adapterlist.add(user);
 
-                    listItems.add(in);
-                    //listItems[i] = in;
+                    }
+                    c.moveToNext();
 
-                    //そして、dateをcheckdateにいれる
-                    //dateは、前のコメントの日付のはず
                 }
 
-                //ここでListViewにするように
+                c.close();
+                db.close();
 
-//-------------------------------------------------------ArrayAdapterにlistItemsをset----------------------------------------------------//
-
-                /**
-                listView = (ListView) findViewById(R.id.list_view);
-                ArrayAdapter<String> adapterlist = new ArrayAdapter<String>(LocationActivity.this, android.R.layout.simple_list_item_1, listItems);
-                adapterlist.setDropDownViewResource(android.R.layout.simple_list_item_1);
-                listView.setAdapter(adapterlist);
-                 **/
-
-//--------------------------------------------setOnItemClickListener(new LocationActivity());------------------------------------------//
-                //listView.setOnItemClickListener(new LocationActivity());
-              //  listView.setOnItemClickListener(this);
-
-               // listView.setOnItemLongClickListener(this);
-
-
-                //自分でActtivityをnewしては、いけない
-
-                //ArrayAdapterをspinnerで使ってた
-                c.moveToNext();
-
+                Log.d("whileからでた", "はじかれた,次はとくにない？");
+            }else if(c.getCount()==0) {
 
             }
 
-            // System.out.println("listItemsの配列のlength"+listItems.length);
-            c.close();
-            db.close();
-
-            Log.d("whileからでた", "はじかれた,次はとくにない？");
-        }else if(c.getCount()==0) {
-
-
-
-
-            // String in = "";
-            // listItems[i] = in;
-
-            listItems.clear();
-
-            // listItems.add(in);
-
-
-
-
-//-------ArrayAdapterにlistItemsをset-----//
-            //これで、listViewを作る
-
+        return adapterlist;
 
 
         }
 
-
-
-
-//----------------------------------------------------spinnerじゃなくて、listviewのadapter-----------------------------------------------//
-
-
-        //spinnerの初回起動でstartFusedLocation()でlistItemsを取得する
-
-        //ListView listView = (ListView) findViewById(R.id.list_view);
-
-
-
-    return listItems;
-
     }
-
-}

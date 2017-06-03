@@ -1,5 +1,4 @@
-
-//そ、5/22 コメントの修正
+//New3 あ つぎは、Adapterを自作して、listの中の文字をクラスごとに受け取る
 package com.example.android.sample.new3;
 
 import android.Manifest;
@@ -57,6 +56,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -125,8 +125,12 @@ public class LocationActivity extends AppCompatActivity implements
     private Spinner spinner;
     private TextView textViewSpinner;
     String spinnerItems[];
-    ArrayList<String> listItems = new ArrayList<>();
 
+    //List<User> listItems = new ArrayList<>();
+
+    //List<User> listItems;
+
+   public ArrayList<User> adapterlist;
     //--------------------------------static のクラス変数 usernameを定義、usernameをnullに----------------------------------------//
 
     static String username = null;
@@ -860,7 +864,7 @@ public class LocationActivity extends AppCompatActivity implements
         spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
 
 
-        spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
+       //spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
 
 
         //usernameがnullになってる
@@ -868,6 +872,10 @@ public class LocationActivity extends AppCompatActivity implements
         System.out.println("あああああ");
         System.out.println(Arrays.toString(spinnerItems));
 
+
+        //ここで、spinnerItemsを使って、spinnerを作り上げている、
+        //だから、Adapterクラスを作ったとしても、その引数で、spinnerを使う
+        //spinnerItemは、作ってる場所は、favorite
 
         //リスナーの終わり、
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerItems);
@@ -878,6 +886,8 @@ public class LocationActivity extends AppCompatActivity implements
 
         // 初回起動時の対応
         spinner.setFocusable(false);
+
+
 
 
 
@@ -2845,25 +2855,75 @@ public class LocationActivity extends AppCompatActivity implements
 
 
 //select() --/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//LocationAcitivty 2853
 //-------------------------------------------------------select()---------------------------------------------------------------------//
 
     //新しくselect()メソッド
     //latutide2も
    public void select(double latitude,double longitude){
 
+       ArrayList<User> adapterlist = new ArrayList<>();
 
       select selectclass=new select();
-             selectclass.select(latitude,longitude,this);
+             selectclass.select(latitude,longitude,this,adapterlist);
 
-       final ArrayList<String> listItems = selectclass.select(latitude,longitude,this);
+      // final ArrayList<String>
+      // listItems = selectclass.select(latitude,longitude,this);
+
+       ///ArrayList<User>niselist=new ArrayList<>();
+           //   niselist = selectclass.select(latitude,longitude,this,adapterlist);
+     //niselistがnulladapterlistに入れる
+    //   if(niselist!=null) {
+      //     adapterlist =niselist;
+
+      // }
 
 
+       if(selectclass.select(latitude,longitude,this,adapterlist)!=null) {
+
+
+           adapterlist =selectclass.select(latitude,longitude,this,adapterlist);
+       }
+       //niselistがnulladapterlistに入れる
+
+
+       //なんか変な風になってる、呼び出した時点で、getCountつまりnewした時点で、だからこれは使えない
+       //こっちだ自作Activityを使いたいのは、
+       //ここで、まず、listItemは、もう作られてsetされている
+       //だから、それを作ってるselectをかえるの？
+       //
 
        listView = (ListView) findViewById(R.id.list_view);
-       ArrayAdapter<String> adapterlist = new ArrayAdapter<String>(LocationActivity.this, android.R.layout.simple_list_item_1, listItems);
-       adapterlist.setDropDownViewResource(android.R.layout.simple_list_item_1);
-       listView.setAdapter(adapterlist);
+
+       //select selecter=new select();
+
+       //これは、もう上でやってる。ここでは、selectして作ったlistItemをlistViewにセットすること
+       // List<User> dataList = selecter.select();
+
+
+//
+       //ListView listView = (ListView)findViewById(R.id.list_view);
+
+       //ArrayList<User> list = new ArrayList<>();
+
+       if(adapterlist==null){
+           System.out.println("nullllllllll");
+       }else if(adapterlist!=null) {
+           ArrayListAdapter adapter = new ArrayListAdapter(LocationActivity.this, adapterlist);
+           adapter.setAdapterList(adapterlist);
+//
+
+           //adapter = new ArrayListAdapter(this, adapterlist);
+           listView.setAdapter(adapter);
+
+       }
+
+
+      // adapter = new SampleAdapter(this, dataList);
+      //  setListAdapter(adapter);
+      // List<User> adapterlist = new List<User>(LocationActivity.this, android.R.layout.simple_list_item_1, listItems);
+      // adapterlist.setDropDownViewResource(android.R.layout.simple_list_item_1);
+      // listView.setAdapter(adapterlist);
 
 //listView.setOnItemClickListener(new LocationActivity());
        listView.setOnItemClickListener(this);
