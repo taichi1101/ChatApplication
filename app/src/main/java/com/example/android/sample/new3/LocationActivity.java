@@ -204,6 +204,7 @@ public class LocationActivity extends AppCompatActivity implements
                   }else {
                         Toast.makeText(LocationActivity.this, "ログインしていません" , Toast.LENGTH_SHORT).show();
                     }
+                    onStart();
                 }
             });
             builder.setNegativeButton("ログイン", new DialogInterface.OnClickListener() {
@@ -228,6 +229,7 @@ public class LocationActivity extends AppCompatActivity implements
                         username = checkusername;
                         System.out.println("ログイン完了" + username);
                         spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
+                        onStart();
 
                     } else if (count == 0) {
                         Toast toast = Toast.makeText(LocationActivity.this, "ログインできませんでした。", Toast.LENGTH_SHORT);
@@ -834,13 +836,9 @@ public class LocationActivity extends AppCompatActivity implements
                     //updatecommentも同じ
                     editText.setText(updatecomment);
                     //ここが呼ばれてるか重要
-                    editText.setSelection(editText.getText().length());
                     //--------------------------大きいブロック、updbのupdateと、insert、neardbのupdateをおこなう-------------------------------------//
-                } else if (c == null) {
-                    System.out.println("cがnull");
-                } else {
-                    System.out.println("nullではないが");
-                }
+              }
+            editText.setSelection(editText.getText().length());
                 //-------------------------------------------------------ここまででselectする----------------------------------------------------//
                 // EditText のインプットタイプを設定
                 editText.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -897,7 +895,7 @@ public class LocationActivity extends AppCompatActivity implements
                                 //だけど、neardbのupdateはできてる
                                 System.out.println("cc!=null(1241)");
                                 //ここでは、neardbidを使い、incrementのidは、使わない
-                                String sqlupdate = "update neardbupdate set comment = '" + getedittext + datareset2 + "' where neardbid == '" + idnumberx + "';";
+                                String sqlupdate = "update neardbupdate set comment = '" + getedittext +datareset2 + "' where neardbid == '" + idnumberx + "';";
                                 System.out.println("sqlupdateした:" + sqlupdate + "(1249)");
                                 cc.close();
                                 MyOpenHelper helpers = new MyOpenHelper(LocationActivity.this);
@@ -910,6 +908,8 @@ public class LocationActivity extends AppCompatActivity implements
                                 //------------一度もupdateしてないコメントは、ここに来るようになってる-------------//
                             } else if (cc == null || cc.getCount() == 0) {
                                 //------------------ここで、insertしてる neardbupdateに---------------------//
+                                //getedittextの一番後ろの'を
+                                System.out.println("getedittext:"+getedittext);
                                 String updateinsert = "insert into neardbupdate (data,username,comment,latitude,longitude,neardbid)" +
                                         " values ('" + datex + "','" + updatetouchusername + "','" + getedittext + datareset2 + "'," + latitudex + "," + longitudex + "," + idnumberx + ");";
                                 System.out.println("updateinsert:" + updateinsert + "(1259)");
@@ -947,7 +947,7 @@ public class LocationActivity extends AppCompatActivity implements
                 });
                 alertDialog.show();
             } else {
-                String updatetouchusernamecopy;
+                String updatetouchusernamecopy=null;
                 //そして、"  "より前を取り出す
                 //これは、クラス変数にする　String updatetouchusernamescopy;
                 if (updatetouchusername.indexOf(">") != -1) {
@@ -959,8 +959,15 @@ public class LocationActivity extends AppCompatActivity implements
                 if (toyou == null) {
                     toyou = ">" + updatetouchusernamecopy;
                 } else if (toyou.indexOf(">") != -1) {//含まれている場合は、すでにusernameは、入っているから、あとは、toutchusernameだけ
-                    if (toyou.indexOf(updatetouchusernamescopy) != -1) {//すでに、この人へが、追加されている場合は、消す
-                        toyou = toyou.replaceFirst(updatetouchusernamescopy, ""); //一番最初の頭があったら、""にする
+                    System.out.println("4");
+                   if(toyou==null){
+                       System.out.println("toyou==null");
+                   }else if(updatetouchusernamecopy==null){
+                       System.out.println("updatecopy==null");
+                   }
+                    if (toyou.indexOf(updatetouchusernamecopy) != -1) {//すでに、この人へが、追加されている場合は、消す
+                        toyou = toyou.replaceFirst(updatetouchusernamecopy, ""); //一番最初の頭があったら、""にする
+                        System.out.println("すでにあるから、"+updatetouchusernamecopy+"を消す");
                         if (toyou.indexOf(",,") != -1) {//つまり2人以上が選択されているということ
                             toyou = toyou.replace(",,", ",");  //上のやつで、消したら、それを、今度は、,,を防ぐ
                         }
