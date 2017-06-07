@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class select {
 
 
-    public ArrayList<User> select(double latitude, double longitude, Context context,ArrayList<User> adapterlist) {
+    public ArrayList<User> select(double latitude, double longitude, Context context,ArrayList<User> adapterlist,Double spinnermath) {
         // final List<User> adapterlist= new ArrayList<User>();
 
         System.out.println("selectクラス select latitude:"+latitude+":longitude:"+longitude);
@@ -32,10 +32,6 @@ public class select {
 
         MyOpenHelper helper = new MyOpenHelper(context);
             SQLiteDatabase db = helper.getReadableDatabase();
-
-        //selectする時に、もう一つのspinnerを作って、広さを調整する
-        //それを変更するたびに、select、onStart()し直す。
-        //ボタンが押されたたびに、selectを呼び出す。
 
         double clearlatitude = 0.00002694944*4;
         double clearlongitude = 0.00032899147*4;

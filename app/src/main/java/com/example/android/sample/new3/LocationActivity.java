@@ -97,6 +97,7 @@ public class LocationActivity extends AppCompatActivity implements
     double longitude2 = 0;
     String but = null;
 
+
     //この下の2つは、updateする時に、コメントを更新する時に、現在地を取得して、selectする時に使う
     Double latitudex;
     Double longitudex;
@@ -107,8 +108,12 @@ public class LocationActivity extends AppCompatActivity implements
     String datareset2;
     String idnumber;
     private Spinner spinner;
+    private Spinner spinner2;
+    Double spinnermath=30.0;
     private TextView textViewSpinner;
     String spinnerItems[];
+    String spinnerMetter[];
+
 
    public ArrayList<User> adapterlist;
     //--------------------------------static のクラス変数 usernameを定義、usernameをnullに----------------------------------------//
@@ -118,6 +123,12 @@ public class LocationActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        spinnerMetter = new String[5];
+        spinnerMetter[0] = "30m";
+        spinnerMetter[1] = "60m";
+        spinnerMetter[2] ="200m";
+        spinnerMetter[3] ="1km";
+        spinnerMetter[4] ="3km";
         //このしたが、キーボードが押されないようにしれる
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_main);
@@ -511,24 +522,24 @@ public class LocationActivity extends AppCompatActivity implements
         String activity = getIntent().getStringExtra("Activity");
         latitude2 = getIntent().getDoubleExtra("latitude2", latitude2);
         longitude2 = getIntent().getDoubleExtra("longitude2", longitude2);
-        System.out.println("latitude2:"+latitude2+":longitude2:"+longitude2);
+        System.out.println("latitude2:" + latitude2 + ":longitude2:" + longitude2);
         //----------intentが1の時は、自動でon------------//
         if (activity.equals("1")) {
             Switch mSwitch = (Switch)
                     findViewById(R.id.swtOnOff);
             mSwitch.setChecked(true);  // 状態をONに
-            if(latitude2!=0) {//MapActivityから呼ばれた場合は、ここで、ロングクリックの場所をselectする
+            if (latitude2 != 0) {//MapActivityから呼ばれた場合は、ここで、ロングクリックの場所をselectする
                 System.out.println("onstart() latitude2" + latitude2 + ":" + longitude2);
                 System.out.println("selectはしなくても、latitude2が使われるからだいじょぶ");
-               // select(latitude2,longitude2);
+                // select(latitude2,longitude2);
             }
-        } else if ( activity.equals("2")) {//すでにlatitude2は0じゃなくなっているはず、一つめのifで
+        } else if (activity.equals("2")) {//すでにlatitude2は0じゃなくなっているはず、一つめのifで
             //ここnullでやらなくて大丈夫かな？
-            if(latitude2!=0) {//MapActivityから呼ばれた場合は、ここで、ロングクリックの場所をselectする
+            if (latitude2 != 0) {//MapActivityから呼ばれた場合は、ここで、ロングクリックの場所をselectする
                 System.out.println("onstart() latitude2" + latitude2 + ":" + longitude2);
                 //select(latitude2, longitude2);
-                    //一度latitudeとかにsetされれば、intentでMainに飛ばしてもいいならおk
-            }else if(latitude2==0) {
+                //一度latitudeとかにsetされれば、intentでMainに飛ばしてもいいならおk
+            } else if (latitude2 == 0) {
                 Toast toast = Toast.makeText(this, "コミュにティーを選んでください", Toast.LENGTH_SHORT);
                 //標準でどこかを表示する
                 toast.show();
@@ -538,10 +549,12 @@ public class LocationActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(tool_bar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("");
+
         //2つ目 spinnerのコード/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //----こういうのは、最初に違う形で判断するspinnerではやらない----//
         //---------------- Spinner の選択されているアイテムを設定-------------//
         spinner = (Spinner) findViewById(R.id.spinner);
+
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -557,15 +570,15 @@ public class LocationActivity extends AppCompatActivity implements
                             //gpsがoffにされたら、activityを2にする、 そして、クラス変数にする
                             startFusedLocation();
                             //これで初期化現在地だから
-                            if(latitude2==0) {
+                            if (latitude2 == 0) {
                                 latitude2 = 0;
                                 longitude2 = 0;
                             }
                             but = null;
-                       } else if (activity.equals("2")) {
+                        } else if (activity.equals("2")) {
                             Toast.makeText(getApplicationContext(), "何もしない", Toast.LENGTH_SHORT).show();
                             //これで初期化現在地だから
-                            if(latitude2==0) {
+                            if (latitude2 == 0) {
                                 latitude2 = 0;
                                 longitude2 = 0;
                             }
@@ -595,49 +608,38 @@ public class LocationActivity extends AppCompatActivity implements
                 } else if (item.equals("googlemapで登録")) {
                     System.out.println("googlemapで登録");
                     /**
-                    //この下はonCrateでやること
-                    setContentView(R.layout.activity_map);
-                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                            .findFragmentById(R.id.map);
-                    mapFragment.getMapAsync(LocationActivity.this);
+                     //この下はonCrateでやること
+                     setContentView(R.layout.activity_map);
+                     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                     .findFragmentById(R.id.map);
+                     mapFragment.getMapAsync(LocationActivity.this);
                      **/
                     //代わりに、MapActivityを呼ぶ
-                    String one="1";
-                    String two="2";
+                    String one = "1";
+                    String two = "2";
                     Intent intent = new Intent(getApplication(), MapActivity.class);
                     String activity = getIntent().getStringExtra("Activity");
                     //でも一度マップでlongClickしてたら3になってるから、
                     //ちなみにonStartで123をifしてる
                     if (activity.equals("1")) {
-                        intent.putExtra("Activity",one);
-                        intent.putExtra("latitude",latitude);
-                        intent.putExtra("longitude",longitude);
+                        intent.putExtra("Activity", one);
+                        intent.putExtra("latitude", latitude);
+                        intent.putExtra("longitude", longitude);
                         System.out.println("googleで検索activity.equals(1)");
                     } else if (activity.equals("2")) {
-                        if(latitude2!=0){
+                        if (latitude2 != 0) {
                             //たとえgpsがなくともいまコメントしてる 場所(latitude2)があれば、それを使う
                             //GPSを自動で動かしてる時は、equals("1")となるから大丈夫
-                            intent.putExtra("Activity",two);
+                            intent.putExtra("Activity", two);
                             //Activityに1を入れると、次から2なのにgpsを使おうとしちゃう
-                            intent.putExtra("latitude2",latitude2);
-                            intent.putExtra("longitude2",longitude2);
-                        }else if(latitude2==0){
-                            intent.putExtra("Activity",two);
+                            intent.putExtra("latitude2", latitude2);
+                            intent.putExtra("longitude2", longitude2);
+                        } else if (latitude2 == 0) {
+                            intent.putExtra("Activity", two);
                             System.out.println("Googleで検索activity.equals(2)");
-                    /**}else if(activity.equals("3")){
-                        System.out.println("googleで検索activity.equals(3)");
-                        Intent mainintent = new Intent(getApplication(), MainActivity.class);
-                        startActivity(mainintent);
-                        //ここでまた、押された場合の行動の前に上
-                     **/
                         }
                     }
                     startActivity(intent);
-                    //mapからここにピンポイントで戻るのは無理
-                    //MapActiviyから取得したlatitude2達を
-                    //latitude2 = getIntent().getDoubleExtra("latitude",latitude2);
-                    // longitude2 = getIntent().getDoubleExtra("longitude",longitude2);
-                    //ここで何を送り出すのか？
 //---------------------------------------------else つまり、お気に入り----------------------------------------------------------------//
                 } else {
                     System.out.println("else");
@@ -646,7 +648,7 @@ public class LocationActivity extends AppCompatActivity implements
                     MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
                     SQLiteDatabase db = helper.getWritableDatabase();
                     Cursor c = db.rawQuery(sql, null);
-                   c.moveToFirst();
+                    c.moveToFirst();
                     latitude2 = c.getDouble(0);
                     longitude2 = c.getDouble(1);
                     System.out.println(latitude2 + "z:" + longitude2);
@@ -662,7 +664,7 @@ public class LocationActivity extends AppCompatActivity implements
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
+        spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
         System.out.println(Arrays.toString(spinnerItems));
         //リスナーの終わり、
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerItems);
@@ -674,7 +676,78 @@ public class LocationActivity extends AppCompatActivity implements
         //selectfusedしてるから、これは
         //selectする
         //現在地を表示を押したら、latitude2に代入する
-    //---------------------------------------------ここからはコメント送信ボタン、spinner----------------------------------------------------//
+
+
+        //ここから倍率のspinner
+        //もう一つのspinnerを作る
+        //---------------- Spinner の選択されているアイテムを設定-------------//
+        spinner2 = (Spinner) findViewById(R.id.spinner2);
+        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Spinner spinner = (Spinner) parent;
+                String item = (String) spinner.getSelectedItem();
+                deleteitem = item;
+                //------------------------------------------spinner初回起動------------------------------------------------//
+                if (spinner.isFocusable() == false) {
+                    spinner.setFocusable(true);
+                    if (item.equals("30m")) {
+                        //これで初期化現在地だから
+                        spinnermath=30.0;
+                    }
+                    return;
+                }
+                Double aa=30.0;
+                Double bb=60.0;
+                Double cc=200.0;
+                Double dd=1000.0;
+                Double ee=3000.0;
+                if(item.equals("30m")) {
+                    ifelse(aa);
+                } else if (item.equals("60m")) {
+                    ifelse(bb);
+                } else if (item.equals("200m")) {
+                   ifelse(cc);
+                } else if (item.equals("1k")) {
+                    ifelse(dd);
+                } else if (item.equals("3k")) {
+                   ifelse(ee);
+                }
+            }
+
+            public void ifelse(double zz){
+                spinnermath=zz;//押された時に代入しておく、これは、onStart()でリセットされて、初期値の30.0になる?
+                //不安だから、spinnerの初期のところで30.0をセットしておく
+                if(latitude2!=0){
+                    select(latitude2,longitude2,spinnermath)
+                }else if(latitude2==0){
+                    if(latitude!=0){
+                        select(latitude,longitude,spinnermath);
+                    }
+                }else{
+                    Toast toast = Toast.makeText(LocationActivity.this, "GPSをONにするか場所を", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
+            //常に、spinnermathをselectに入れればいいだけ、
+            //そして、それを、引数から、clearに掛ける用にする
+            //まずは、掛けるほうから
+                @Override
+                public void onNothingSelected (AdapterView < ? > parent){
+                }
+        });
+        ArrayAdapter<String> madapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,spinnerMetter );
+        madapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner2.setAdapter(madapter2);
+        spinner2.setFocusable(false);
+
+
+
+
+
+
+
+        //---------------------------------------------ここからはコメント送信ボタン、spinner----------------------------------------------------//
         Button buttonTransmission = (Button) findViewById(R.id.buttonTransmission);
         buttonTransmission.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1325,12 +1398,12 @@ public class LocationActivity extends AppCompatActivity implements
 
 //-------------------------------------------------------select()---------------------------------------------------------------------//
 
-   public void select(double latitude,double longitude){
+   public void select(double latitude,double longitude,double spinnermath){
        adapterlist = new ArrayList<>();
       select selectclass=new select();
-             selectclass.select(latitude,longitude,this,adapterlist);
-       if(selectclass.select(latitude,longitude,this,adapterlist)!=null) {
-           adapterlist =selectclass.select(latitude,longitude,this,adapterlist);
+             selectclass.select(latitude,longitude,this,adapterlist,spinnermath);
+       if(selectclass.select(latitude,longitude,this,adapterlist,spinnermath)!=null) {
+           adapterlist =selectclass.select(latitude,longitude,this,adapterlist,spinnermath);
        }
        listView = (ListView) findViewById(R.id.list_view);
        if(adapterlist!=null) {

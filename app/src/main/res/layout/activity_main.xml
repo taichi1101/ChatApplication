@@ -20,12 +20,20 @@
         >
         <Spinner
             android:id="@+id/spinner"
-            android:layout_width="275dp"
+            android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:background="@color/edittext"
             android:paddingLeft="10dp"
             android:popupBackground="#ccffffff"
             />
+
+        <Spinner
+            android:id="@+id/spinner2"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:background="@color/edittext"
+            android:paddingLeft="20dp"
+            android:popupBackground="#ccffffff" />
         <Switch
             android:paddingLeft="20dp"
             android:id="@+id/swtOnOff"
