@@ -121,13 +121,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
     // Intent でLocation
     private void locationActivity1() {
         Intent intent = new Intent(getApplication(), LocationActivity.class);
-
         String i="1";
         intent.putExtra("Activity",i);
         startActivity(intent);
