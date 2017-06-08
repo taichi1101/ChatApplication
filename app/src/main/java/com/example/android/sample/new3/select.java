@@ -23,7 +23,7 @@ public class select {
     public ArrayList<User> select(double latitude, double longitude, Context context,ArrayList<User> adapterlist,Double spinnermath) {
         // final List<User> adapterlist= new ArrayList<User>();
 
-        System.out.println("selectクラス select latitude:"+latitude+":longitude:"+longitude);
+        System.out.println("selectクラス select latitude:"+latitude+":longitude:"+longitude+":spinnermatch:"+spinnermath);
         if(adapterlist==null) {
             System.out.println("adapterlistがnull");
         }
@@ -33,8 +33,23 @@ public class select {
         MyOpenHelper helper = new MyOpenHelper(context);
             SQLiteDatabase db = helper.getReadableDatabase();
 
-        double clearlatitude = 0.00002694944*4;
-        double clearlongitude = 0.00032899147*4;
+        //ここで、spinnerの状況から、取得した値をかけて、sqlから取得する
+        //ここで、ベースが、30だから、(*4の状態で30として、)
+        //30(1) 60(2) 200(7) 1000(33) 30000(100)とする
+        Double bai=0.0;
+        if(spinnermath==30.0){
+          bai=1.0;
+        }else if(spinnermath==60.0){
+            bai=2.0;
+        }else if(spinnermath==200.0){
+            bai=7.0;
+        }else if(spinnermath==1000.0){
+            bai=33.0;
+        } else if (spinnermath == 3000.0){
+            bai=100.0;
+        }
+        double clearlatitude = 0.00002694944*4*bai;
+        double clearlongitude = 0.00032899147*4*bai;
 
         //idnumberを取得
             String sql = "select data,username,comment,idnumber from neardb where latitude - " + latitude + " <= " + clearlatitude + " and "
