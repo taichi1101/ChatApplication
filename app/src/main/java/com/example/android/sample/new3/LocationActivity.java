@@ -162,23 +162,18 @@ public class LocationActivity extends AppCompatActivity implements
     public void ifelse2(double zz){//押された時のみ、onStart()だから繰り返しにはならない
         spinnermath=zz;//押された時に代入しておく、これは、onStart()でリセットされて、初期値の30.0になる?
 
-            if(latitude!=0.0){
+        //ここで、latitude2が、mapのと違ければ、つまり、okが解除されてたら、
+        //latitude2を使う
+            if(latitude!=0.0&&latitude!=0){
                 //なんでlatitudeが2のやつになってんの？
                 select(latitude,longitude,spinnermath);
-                Toast toast = Toast.makeText(LocationActivity.this, "select2 latitude"+latitude+longitude+spinnermath , Toast.LENGTH_SHORT);
-                toast.show();
 
-                System.out.println("aaaaaaaaaaa"+latitude);
-                System.out.println("bbbbbbbbbbb"+latitude2);
-                System.out.println("ccccccccccc"+longitude);
-                System.out.println("ddddddddddd"+longitude2);
-
-            }else {
+            }else{
                 //現在地が取得できない場合は、listを、とりあえず削除するメソッドを
-                Toast toast1 = Toast.makeText(LocationActivity.this, "else" , Toast.LENGTH_SHORT);
-                toast1.show();
-                Toast toast = Toast.makeText(LocationActivity.this, "GPSをONにするか場所を選んでください", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(LocationActivity.this, "GPSがOFFです", Toast.LENGTH_SHORT);
                 toast.show();
+                //OFFの場合は、onStart()?
+                onStart();
             }
     }
 
@@ -340,8 +335,8 @@ public class LocationActivity extends AppCompatActivity implements
 
                         //やっぱり、latitude2にlatitudeを代入することが一番
                         ifelse2(spinnermath);
-                        latitude2=latitude;
-                        longitude2=longitude;
+                       latitude2=0;
+                       longitude2=0;
 
                     }
                 });
