@@ -33,6 +33,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -117,6 +118,8 @@ public class LocationActivity extends AppCompatActivity implements
     String spinnerItems[];
     String spinnerMetter[];
 
+    public String ok="";
+
     //position
     Integer spinnerposition;
 
@@ -153,6 +156,30 @@ public class LocationActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+//----------method割り込み---------//
+    //ifelse2は、違う、現在地のlatitudeを取得しないといけないんだsixyutokusinaitoikenainnda
+    public void ifelse2(double zz){//押された時のみ、onStart()だから繰り返しにはならない
+        spinnermath=zz;//押された時に代入しておく、これは、onStart()でリセットされて、初期値の30.0になる?
+
+            if(latitude!=0.0){
+                //なんでlatitudeが2のやつになってんの？
+                select(latitude,longitude,spinnermath);
+                Toast toast = Toast.makeText(LocationActivity.this, "select2 latitude"+latitude+longitude+spinnermath , Toast.LENGTH_SHORT);
+                toast.show();
+
+                System.out.println("aaaaaaaaaaa"+latitude);
+                System.out.println("bbbbbbbbbbb"+latitude2);
+                System.out.println("ccccccccccc"+longitude);
+                System.out.println("ddddddddddd"+longitude2);
+
+            }else {
+                //現在地が取得できない場合は、listを、とりあえず削除するメソッドを
+                Toast toast1 = Toast.makeText(LocationActivity.this, "else" , Toast.LENGTH_SHORT);
+                toast1.show();
+                Toast toast = Toast.makeText(LocationActivity.this, "GPSをONにするか場所を選んでください", Toast.LENGTH_SHORT);
+                toast.show();
+            }
     }
 
     //------------------------------------------------------------新規登録/ログイン--------------------------------------------------------//
@@ -245,7 +272,8 @@ public class LocationActivity extends AppCompatActivity implements
                         username = checkusername;
                         System.out.println("ログイン完了" + username);
                         spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
-                        onStart();
+                        arrayadapter();
+                        //onStart();
                         //いちいちonStartしてるから帰る
 
                     } else if (count == 0) {
@@ -307,10 +335,14 @@ public class LocationActivity extends AppCompatActivity implements
                         System.out.println(c.getCount());
                         c.moveToFirst();
                         spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
-                       // onStart();
                         //リスナーの終わり、
-                       arrayadapter();
-                        //削除はonStartでいい
+                         arrayadapter();
+
+                        //やっぱり、latitude2にlatitudeを代入することが一番
+                        ifelse2(spinnermath);
+                        latitude2=latitude;
+                        longitude2=longitude;
+
                     }
                 });
                 builder.create().show();
@@ -364,8 +396,6 @@ public class LocationActivity extends AppCompatActivity implements
                             spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
                             //onStart();
                             arrayadapter();
-                            //編集は、menuの方から押して、spinnerのあるonStart()の中で、Spinner.setSelection(int position)をする
-                            //いや、ここからやればいい、とりあえず、選択されているspinnerのpositionをクラス変数にする
                             spinner.setSelection(spinnerposition);
                             //これで、現在選択されているspinnerが表示される
                             //削除した場合は、GPSの現在地が選択、その時は、ここは、呼ばれない
@@ -498,7 +528,7 @@ public class LocationActivity extends AppCompatActivity implements
                                 db.execSQL(sql);
                                 //favoriteににinsetしたからfavoriteよんでspinner更新
                                 spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
-                                onStart();
+                                //onStart();
                                 select(latitude2, longitude2,spinnermath);
                             } else if (latitude2 == 0) {
                                 String sql = "insert into favorite (username,placename,latitude,longitude) " +
@@ -508,9 +538,13 @@ public class LocationActivity extends AppCompatActivity implements
                                 select(latitude, longitude,spinnermath);
                                 //favoriteににinsetしたからfavoriteよんでspinner更新
                                 spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
-                                onStart();
-
+                                //onStart();
                             }
+                            arrayadapter();
+                            setSelection(spinner, placename);
+                         // 作ったspinnerの名前から、selectするmethodを呼び出してる
+                            //ここで、新しく登録したspinnerを選択するようにするから、違うやつ
+                           // spinner.setSelection(spinnerposition);
                         }
 
                     }
@@ -530,6 +564,18 @@ public class LocationActivity extends AppCompatActivity implements
         }
         return super.onOptionsItemSelected(item);
     }
+    ////これを、新しく作られたspinnerのなで、EditTextから取得して、引数itemに入れてyobidasu
+    public static void setSelection(Spinner spinner, String item) {
+        // ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerItems);
+        SpinnerAdapter adapter = spinner.getAdapter();
+        int index = 0;
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).equals(item)) {
+                index = i; break;
+            }
+        }
+        spinner.setSelection(index);
+    }
 
     //----------------------------------------------------------onStart()-------------------------------------------------------------------//
     @Override
@@ -543,10 +589,19 @@ public class LocationActivity extends AppCompatActivity implements
         locationRequest.setInterval(1000);
         locationRequest.setFastestInterval(16);
 
-
         String activity = getIntent().getStringExtra("Activity");
-        latitude2 = getIntent().getDoubleExtra("latitude2", latitude2);
-        longitude2 = getIntent().getDoubleExtra("longitude2", longitude2);
+
+        Globals globals;
+       globals =(Globals)this.getApplication();
+        if (globals.getOk() != null) {
+            ok = globals.getOk();
+            if (ok.equals("ok")) {
+                latitude2 = getIntent().getDoubleExtra("latitude2", latitude2);
+                longitude2 = getIntent().getDoubleExtra("longitude2", longitude2);
+                globals.setOk("not ok");
+                ok=globals.getOk();
+            }
+        }
         System.out.println("latitude2:" + latitude2 + ":longitude2:" + longitude2);
         //----------intentが1の時は、自動でon------------//
         if (activity.equals("1")) {
@@ -565,7 +620,7 @@ public class LocationActivity extends AppCompatActivity implements
                 //select(latitude2, longitude2);
                 //一度latitudeとかにsetされれば、intentでMainに飛ばしてもいいならおk
             } else if (latitude2 == 0) {
-                Toast toast = Toast.makeText(this, "コミュにティーを選んでください", Toast.LENGTH_SHORT);
+                 Toast toast = Toast.makeText(this, "コミュにティーを選んでください", Toast.LENGTH_SHORT);
                 //標準でどこかを表示する
                 toast.show();
             }
@@ -575,8 +630,7 @@ public class LocationActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
         toolbar.setTitle("");
 
-        //2つ目 spinnerのコード////////////////////////////////////////////////////
-        //----こういうのは、最初に違う形で判断するspinnerではやらない----//
+
         //---------------- Spinner の選択されているアイテムを設定-------------//
         spinner = (Spinner) findViewById(R.id.spinner);
 
@@ -588,6 +642,7 @@ public class LocationActivity extends AppCompatActivity implements
                 deleteitem = item;
                 //クラス変数に入れる。今選択されていたspinnerを後で指定できるように
                 spinnerposition=position;
+
                 //削除の場合はいらない
                 //------------------------------------------spinner初回起動------------------------------------------------//
                 if (spinner.isFocusable() == false) {
@@ -697,7 +752,6 @@ public class LocationActivity extends AppCompatActivity implements
         spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
 
 
-        //ここにあった arrayadapter
         arrayadapter();
 
         //ここから倍率のspinner
@@ -905,8 +959,6 @@ public class LocationActivity extends AppCompatActivity implements
 
     //spinnerItemsを更新した時に呼び出す
     public void arrayadapter() {
-        Toast toast = Toast.makeText(LocationActivity.this, "arrayadapter", Toast.LENGTH_SHORT);
-        toast.show();
         //リスナーの終わり、
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerItems);
         //ここにcreateFromResourceがないことだけ

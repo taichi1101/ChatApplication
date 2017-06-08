@@ -1,10 +1,12 @@
 package com.example.android.sample.new3;
 
 import android.content.Intent;
+import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,6 +24,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     Double longitude2=0.0;
     Double latitude=0.0;
     Double longitude=0.0;
+    Globals globals;
 
 
    // getDouble(String key) getDouble(String key, double defaultValue)
@@ -99,17 +102,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
         intent.putExtra("latitude2",latitude2);
         intent.putExtra("longitude2",longitude2);
+        globals =(Globals)this.getApplication();
+        String ok="ok";
+        globals.setOk(ok);
         startActivity(intent);
 
-
-        //LongClickでmarkerを置いたら、ボタンを押したら、latitude2にセットし、
-        //そしたら、
-
-       //別にreturnしなくても、onStart()からLocationActivityが始まり、
-       //select2にセットされればいい
-        //だからonStartでやったほうがいい
-        //そして、そのままselect()されればいい
-        //繰り返しになる可能性
     }
 
 
