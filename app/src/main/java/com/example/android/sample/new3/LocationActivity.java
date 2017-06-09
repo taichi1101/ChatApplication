@@ -74,6 +74,8 @@ public class LocationActivity extends AppCompatActivity implements
         ListView.OnItemClickListener,ListView.OnItemLongClickListener {
     //onMapReadyをコールバックすれば自動でonMapLeadyが呼ばれる
 
+   private String spinnername=null;
+
 
     favorite favorite = new favorite();
     //クラス変数にする
@@ -99,6 +101,8 @@ public class LocationActivity extends AppCompatActivity implements
     double latitude2 = 0;
     double longitude2 = 0;
     String but = null;
+
+    String placename;
 
 
     //この下の2つは、updateする時に、コメントを更新する時に、現在地を取得して、selectする時に使う
@@ -157,11 +161,57 @@ public class LocationActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-//----------method割り込み---------//
-    //ifelse2は、違う、現在地のlatitudeを取得しないといけないんだsixyutokusinaitoikenainnda
+
+
+    //Menu#findItemでMenuItemインスタンスを取得し、MenuItem#setTitleを使用
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        // メニューアイテムを取得
+        MenuItem action_deleteplace = (MenuItem) menu.findItem(R.id.action_deleteplace);
+        MenuItem action_updateplace = (MenuItem) menu.findItem(R.id.action_updateplace);
+        MenuItem action_deleteuser = (MenuItem) menu.findItem(R.id.action_deleteuser);
+        MenuItem action_setlogin = (MenuItem) menu.findItem(R.id.action_setlogin);
+        MenuItem action_nowscreenset = (MenuItem) menu.findItem(R.id.action_nowscreenset);
+
+        if (deleteitem != null) {
+            if(username==null){
+                action_deleteuser.setVisible(false);
+                action_deleteuser.setVisible(false);
+                action_nowscreenset.setVisible(false);
+                action_setlogin.setTitle("ログイン/新規登録");
+            }else if(username!=null){
+                action_nowscreenset.setVisible(true);
+                action_deleteuser.setVisible(true);
+                action_deleteuser.setTitle(username + "/アカウント");
+                action_setlogin.setTitle(username + "/ログアウト");
+            }
+            if (deleteitem.equals("GPSの現在地")) {
+                action_deleteplace.setVisible(false);
+                action_updateplace.setVisible(false);
+
+            } else if (deleteitem.equals("googlemapで検索")) {
+                action_deleteplace.setVisible(false);
+                action_updateplace.setVisible(false);
+
+            } else {
+                if (username != null) {
+                    action_nowscreenset.setVisible(false);
+                    action_deleteplace.setVisible(true);
+                    action_updateplace.setVisible(true);
+                    action_deleteplace.setTitle(deleteitem + "/アカウント");
+                    action_updateplace.setTitle(deleteitem + "/変更");
+                }
+            }
+        }
+        return true;
+    }
+
+
+
+    //ifelse2は、違う、現在地のlatitudeを取得しないといけない
     public void ifelse2(double zz){//押された時のみ、onStart()だから繰り返しにはならない
         spinnermath=zz;//押された時に代入しておく、これは、onStart()でリセットされて、初期値の30.0になる?
-
         //ここで、latitude2が、mapのと違ければ、つまり、okが解除されてたら、
         //latitude2を使う
             if(latitude!=0.0&&latitude!=0){
@@ -496,66 +546,73 @@ public class LocationActivity extends AppCompatActivity implements
             // アラーとダイアログ を生成
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setView(layout);
-            builder.setPositiveButton("登録", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    EditText getplacename = (EditText) layout.findViewById(R.id.placename);
-                    //入力した文字をトースト出力する
-                    String placename = getplacename.getText().toString();
-                    placename = placename.trim();
-                    if (placename.length() == 0) {
-                        Toast toast = Toast.makeText(LocationActivity.this, "名称が入力されていません", Toast.LENGTH_SHORT);
-                        toast.show();
-                    } else if (placename.length() != 0) {
-                        if (username == null) {
-                            //ログインしてくださいと表示
-                            Toast toast = Toast.makeText(LocationActivity.this, "ログインしてください", Toast.LENGTH_SHORT);
-                            toast.show();
 
-                        } else if (username != null) {
-                            //ここに埋め込んだ
-                            MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
-                            SQLiteDatabase db = helper.getWritableDatabase();
 
-    //ここのif()はselectのためじゃなくて、insertでlatitudeかlatitude2のどちらを使うかを判定するため、
-                            if (latitude2 != 0) {
-                                String sql = "insert into favorite (username,placename,latitude,longitude) " +
-                                        "values('" + username + "','" + placename + "'," + latitude2 + "," + longitude2 + ");";
-                                db.execSQL(sql);
-                                //favoriteににinsetしたからfavoriteよんでspinner更新
-                                spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
-                                //onStart();
-                                select(latitude2, longitude2,spinnermath);
-                            } else if (latitude2 == 0) {
-                                String sql = "insert into favorite (username,placename,latitude,longitude) " +
-                                        "values('" + username + "','" + placename + "'" +
-                                        "," + latitude + "," + longitude + ");";
-                                db.execSQL(sql);
-                                select(latitude, longitude,spinnermath);
-                                //favoriteににinsetしたからfavoriteよんでspinner更新
-                                spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
-                                //onStart();
+                if (username == null) {
+                    //ログインしてくださいと表示
+                    Toast toast = Toast.makeText(LocationActivity.this, "ログインしてください", Toast.LENGTH_SHORT);
+                    toast.show();
+
+                }else if (username != null) {
+                    builder.setPositiveButton("登録", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+
+                            EditText getplacename = (EditText) layout.findViewById(R.id.placename);
+                            //入力した文字をトースト出力する
+                            placename = getplacename.getText().toString();
+                            placename = placename.trim();
+                            if (placename.length() == 0) {
+                                Toast toast = Toast.makeText(LocationActivity.this, "名称が入力されていません", Toast.LENGTH_SHORT);
+                                toast.show();
+                            } else if (placename.length() != 0) {
+
+                                //ここに埋め込んだ
+                                MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
+                                SQLiteDatabase db = helper.getWritableDatabase();
+
+                                //ここのif()はselectのためじゃなくて、insertでlatitudeかlatitude2のどちらを使うかを判定するため、
+                                if (latitude2 != 0) {
+                                    String sql = "insert into favorite (username,placename,latitude,longitude) " +
+                                            "values('" + username + "','" + placename + "'," + latitude2 + "," + longitude2 + ");";
+                                    db.execSQL(sql);
+                                    //favoriteににinsetしたからfavoriteよんでspinner更新
+                                    spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+                                    //onStart();
+                                    select(latitude2, longitude2, spinnermath);
+                                } else if (latitude2 == 0) {
+                                    String sql = "insert into favorite (username,placename,latitude,longitude) " +
+                                            "values('" + username + "','" + placename + "'" +
+                                            "," + latitude + "," + longitude + ");";
+                                    db.execSQL(sql);
+                                    select(latitude, longitude, spinnermath);
+                                    //favoriteににinsetしたからfavoriteよんでspinner更新
+                                    spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+                                    //onStart();
+                                }
+                                arrayadapter();
+                                setSelection(spinner, placename);
+                                // 作ったspinnerの名前から、selectするmethodを呼び出してる
+                                //ここで、新しく登録したspinnerを選択するようにするから、違うやつ
+                                // spinner.setSelection(spinnerposition);
                             }
-                            arrayadapter();
-                            setSelection(spinner, placename);
-                         // 作ったspinnerの名前から、selectするmethodを呼び出してる
-                            //ここで、新しく登録したspinnerを選択するようにするから、違うやつ
-                           // spinner.setSelection(spinnerposition);
                         }
 
-                    }
+                    });
+
+                    //getplacename
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface arg0) {
+                            EditText getplacename = (EditText) layout.findViewById(R.id.placename);
+                            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            inputMethodManager.showSoftInput(getplacename, 0);
+                        }
+                    });
+                    alertDialog.show();
                 }
-            });
-            //getplacename
-            AlertDialog alertDialog = builder.create();
-            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface arg0) {
-                    EditText getplacename = (EditText) layout.findViewById(R.id.placename);
-                    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.showSoftInput(getplacename, 0);
-                }
-            });
-            alertDialog.show();
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -682,6 +739,7 @@ public class LocationActivity extends AppCompatActivity implements
                         longitude2 = 0;
                         but = null;
                     }
+
 //------------------------------------------------------googlemapで検索-----------------------------------------------------------------//
                 } else if (item.equals("googlemapで登録")) {
                     System.out.println("googlemapで登録");
@@ -736,10 +794,11 @@ public class LocationActivity extends AppCompatActivity implements
                     //elseの時に、お気に入りの場所をspinnerpalaceに入れてる。
                     //editの時に、""じゃなければ、
                     select(latitude2, longitude2,spinnermath);
+
                 }
             }
-
             //アイテムが選択されなかった
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -813,9 +872,6 @@ public class LocationActivity extends AppCompatActivity implements
         madapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner2.setAdapter(madapter2);
         spinner2.setFocusable(false);
-
-
-
 
 
         //---------------------------------------------ここからはコメント送信ボタン、spinner----------------------------------------------------//

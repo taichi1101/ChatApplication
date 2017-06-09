@@ -88,6 +88,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         latitude2 = latLng.latitude;
         longitude2 = latLng.longitude;
 
+
         System.out.println("MapActivity:"+latitude2+":"+longitude2);
 
         Intent intent = new Intent(getApplication(), LocationActivity.class);
