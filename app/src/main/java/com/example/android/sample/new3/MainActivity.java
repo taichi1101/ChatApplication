@@ -19,6 +19,8 @@ import static com.example.android.sample.new3.MyOpenHelper.CREATE_TABLE5;
 import static com.example.android.sample.new3.MyOpenHelper.CREATE_TABLE_UPDATE;
 
 public class MainActivity extends AppCompatActivity {
+    
+    //gitコメント MainActivity
 
     private final int REQUEST_PERMISSION = 10;
 
