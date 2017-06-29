@@ -1,4 +1,5 @@
 package com.example.android.sample.new3;
+//コメントMainActivity
 
 import android.Manifest;
 import android.content.Intent;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         MyOpenHelper helper = new MyOpenHelper(MainActivity.this);
         db = helper.getWritableDatabase();
 
+        //あ
 
        // db.execSQL("delete from neardb;");
        //db.execSQL("delete from neardbupdate;");

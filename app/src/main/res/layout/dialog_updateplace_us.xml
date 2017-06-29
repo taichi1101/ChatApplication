@@ -10,15 +10,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="place登録"
-        />
+        android:text="新しい登録名を入力" />
+
     <EditText
         android:id="@+id/updateplace"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="新しいplacenameを入力してください"
-        android:inputType="text"
-        />
+        android:hint="新しい登録名を入力"
+        android:inputType="text" />
 
 
 </LinearLayout>

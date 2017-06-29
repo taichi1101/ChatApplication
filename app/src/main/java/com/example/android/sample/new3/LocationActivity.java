@@ -127,6 +127,8 @@ public class LocationActivity extends AppCompatActivity implements
     //position
     Integer spinnerposition;
 
+    private Menu menu;
+
 
 
    public ArrayList<User> adapterlist;
@@ -180,6 +182,8 @@ public class LocationActivity extends AppCompatActivity implements
                 action_deleteuser.setVisible(false);
                 action_nowscreenset.setVisible(false);
                 action_setlogin.setTitle("ログイン/新規登録");
+
+                //ここで、使ったmenuを使って、押されたボタンの、titleを取得して、それ次第で、レイアウトを表示する
             }else if(username!=null){
                 action_nowscreenset.setVisible(true);
                 action_deleteuser.setVisible(true);
@@ -236,6 +240,43 @@ public class LocationActivity extends AppCompatActivity implements
             // カスタムビューを設定
             LayoutInflater inflater = (LayoutInflater) this.getSystemService(
                     LAYOUT_INFLATER_SERVICE);
+
+
+            /**
+           // MenuItem action_deleteplace = (MenuItem) menu.findItem(R.id.action_deleteplace);
+           // action_deleteplace.getTitle();
+
+            final  View layout = inflater.inflate(R.layout.dialog_contact_us, (ViewGroup) findViewById(R.id.layout_root));
+
+            Alart alart=new Alart();
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            alart.newSet(inflater,this,layout,inputMethodManager);
+
+            System.out.println("aaaaaaazzzzzzzzzzzzeeeeeeeeeettttttttt"+username);
+            //username =alart.getUsername();
+            System.out.println("aaaaaaaaaakkkkkkkkkkkeeeeeeeeeeessssssssiiiiiiiii"+username);
+           // spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+           // arrayadapter();
+
+           // onStart();
+            **/
+
+ ///////////////////////////////////////////////////////////////////////ここに、新しい、サイトの情報/////////////////////////
+/**
+                // いろいろな準備 (1)
+
+                MyConfirmDialog.OnResultListener impl = new MyConfirmDialog.OnResultListener() {
+                    public void onOK() {
+                        // (1)やMyActivity のメンバ変数を使った処理
+                    }
+                };
+
+                new MyConfirmDialog().show(this, impl);
+ **/
+
+            ///////////////////////////////////////////////////////////////////////この間　
+
+
             final View layout = inflater.inflate(R.layout.dialog_contact_us, (ViewGroup) findViewById(R.id.layout_root));
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setView(layout);
@@ -281,15 +322,20 @@ public class LocationActivity extends AppCompatActivity implements
                     }
                 }
             });
+            //ここで、別のメソッドを呼び出して、それにって、if(else)で、ボタンの数、
+
+
+            //ここで、使ったmenuを使って、押されたボタンの、titleを取得して、それ次第で、レイアウトを表示する
+            //使うのは、
             builder.setNeutralButton("ログアウト", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     if (username !=null && !true == isNum(username)) {
                         Toast.makeText(LocationActivity.this, "ログアウトしました" , Toast.LENGTH_SHORT).show();
                         username=null;
-                      MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
-                      SQLiteDatabase db = helper.getWritableDatabase();
-                      spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
-                  }else {
+                        MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
+                        SQLiteDatabase db = helper.getWritableDatabase();
+                        spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
+                    }else {
                         Toast.makeText(LocationActivity.this, "ログインしていません" , Toast.LENGTH_SHORT).show();
                     }
                     onStart();
@@ -344,6 +390,8 @@ public class LocationActivity extends AppCompatActivity implements
                 }
             });
             alertDialog.show();
+
+//-------------------------------------------------現在表示のおき
 
 //-------------------------------------------------現在表示のおきにいり削除--------------------------------------------------//
         } else if (id == R.id.action_deleteplace) {
@@ -614,6 +662,7 @@ public class LocationActivity extends AppCompatActivity implements
                 }
 
         }
+
         return super.onOptionsItemSelected(item);
     }
     ////これを、新しく作られたspinnerのなで、EditTextから取得して、引数itemに入れてyobidasu
@@ -633,7 +682,7 @@ public class LocationActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        System.out.println("onstat呼ばれた");
+        System.out.println("onstataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa呼ばれた");
         listView = (ListView) findViewById(R.id.list_view);
         // LocationRequest を生成して精度、インターバルを設定
         locationRequest = LocationRequest.create();
@@ -642,6 +691,29 @@ public class LocationActivity extends AppCompatActivity implements
         locationRequest.setFastestInterval(16);
 
         String activity = getIntent().getStringExtra("Activity");
+
+
+        System.out.println("あああああああああああああああああいいいいいいいいいいいいいいいいえええええええええええええええ");
+        Alart alart=new Alart();
+        if(alart.getUsername()==null) {
+            System.out.println("nullllllllllllllllllllllllllllllllllnulllllllllllllllnullllllllllnullllllllll");
+            // if(getIntent().getStringExtra("sername")==null) {
+            //  }else if(getIntent().getStringExtra("sername")!=null){
+        }else if(alart.getUsername()!=null){
+            //String getusername = getIntent().getStringExtra("sername");
+            //username=getusername;
+            username=alart.getUsername();
+            System.out.println("ううううううううううううううううううううううううううううううううううううううう:"+username);
+            spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+            arrayadapter();
+            String aaaa=null;
+           // getIntent().putExtra("username",aaaa);
+            alart.setUsername(aaaa);
+        }
+
+
+
+
 
         Globals globals;
        globals =(Globals)this.getApplication();
