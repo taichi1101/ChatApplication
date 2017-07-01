@@ -14,7 +14,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,GoogleMap.OnMapLongClickListener {
@@ -50,12 +52,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         // Intent intent = new Intent(getApplication(), MapActivity.class);
         String activity = getIntent().getStringExtra("Activity");
-            if (activity.equals("1")){
+        if (activity.equals("1")){
             LatLng now = new LatLng(latitude, longitude);
-            mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
+            Marker melbourne = mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(now));
-            CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15);
+            CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(now, 15);
             mMap.moveCamera(cUpdate);
+            melbourne.showInfoWindow();
         } else if (activity.equals("2")) {//場所も選択しておらず、GPSも使えない時
             if(latitude2!=0.0){
                 LatLng now = new LatLng(latitude2, longitude2);
