@@ -825,8 +825,8 @@ public class LocationActivity extends AppCompatActivity implements
                     //代わりに、MapActivityを呼ぶ
                     String one = "1";
                     String two = "2";
-                    Intent intent = new Intent(getApplication(), MapActivity.class);
-                    String activity = getIntent().getStringExtra("Activity");
+                        Intent intent = new Intent(getApplication(), MapActivity.class);
+                        String activity = getIntent().getStringExtra("Activity");
                     //でも一度マップでlongClickしてたら3になってるから、
                     //ちなみにonStartで123をifしてる
                     if (activity.equals("1")) {
@@ -846,6 +846,22 @@ public class LocationActivity extends AppCompatActivity implements
                             intent.putExtra("Activity", two);
                             System.out.println("Googleで検索activity.equals(2)");
                         }
+                    }
+                    String usernamea;
+                    if(username == null) {
+                        intent.putExtra("username", "null");
+                        usernamea = getIntent().getStringExtra("username");
+                    }else {
+                        intent.putExtra("username", username);
+                        usernamea = getIntent().getStringExtra("username");
+                    }
+                        Toast toasta = Toast.makeText(LocationActivity.this, usernamea + ":元" + username, Toast.LENGTH_SHORT);
+                    toasta.show();
+
+                    if(username == null){
+                        intent.putExtra("username", "null");
+                    }else if(username !=null){
+                        intent.putExtra("username", username);
                     }
                     startActivity(intent);
 //---------------------------------------------else つまり、お気に入り----------------------------------------------------------------//
