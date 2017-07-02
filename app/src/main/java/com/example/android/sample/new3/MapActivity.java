@@ -1,6 +1,8 @@
 package com.example.android.sample.new3;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +20,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import static com.example.android.sample.new3.LocationActivity.username;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,GoogleMap.OnMapLongClickListener {
 
@@ -45,43 +49,74 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         System.out.println("onMapReady");
         mMap = googleMap;
         //まず初期値として、今いる場所を指定しないと行けないから,latitudeをintentにsetする
-        latitude = getIntent().getDoubleExtra("latitude",latitude);
-        longitude= getIntent().getDoubleExtra("longitude",longitude);
-        latitude2 = getIntent().getDoubleExtra("latitude2",latitude2);
-        longitude2= getIntent().getDoubleExtra("longitude2",longitude2);
+        latitude = getIntent().getDoubleExtra("latitude", latitude);
+        longitude = getIntent().getDoubleExtra("longitude", longitude);
+        latitude2 = getIntent().getDoubleExtra("latitude2", latitude2);
+        longitude2 = getIntent().getDoubleExtra("longitude2", longitude2);
 
-        // Intent intent = new Intent(getApplication(), MapActivity.class);
-        String activity = getIntent().getStringExtra("Activity");
-        if (activity.equals("1")){
-            LatLng now = new LatLng(latitude, longitude);
-            Marker melbourne = mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(now));
-            CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(now, 15);
-            mMap.moveCamera(cUpdate);
-            melbourne.showInfoWindow();
-        } else if (activity.equals("2")) {//場所も選択しておらず、GPSも使えない時
-            if(latitude2!=0.0){
-                LatLng now = new LatLng(latitude2, longitude2);
-                mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(now));
-                CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(latitude2, longitude2), 15);
-                mMap.moveCamera(cUpdate);
-            }else if(latitude2==0.0) {
-                LatLng shibuya = new LatLng(35, 139);
-                mMap.addMarker(new MarkerOptions().position(shibuya).title("Marker in Shibuya"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(shibuya));
-                CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(35, 139), 12);
-                mMap.moveCamera(cUpdate);
+        //ここで、セットする
+        //データベースから、緯度経度と、タイトルを取得する
+        //データベース名は？ "insert into favorite (username,placename,latitude,longitude) " +
+
+        if( getIntent().getStringExtra("username") == "null"){
+            username = getIntent().getStringExtra("username");
+        } else if(getIntent().getStringExtra("username") != "null") {
+            username = getIntent().getStringExtra("username");
+
+            String sql = "select placename,latitude,longitude from favorite where username == '" + username + "';";
+            MyOpenHelper helper = new MyOpenHelper(MapActivity.this);
+            SQLiteDatabase db = helper.getWritableDatabase();
+            Cursor c = db.rawQuery(sql, null);
+            c.moveToFirst();
+            if (c.getCount() != 0) {
+                Toast toasta = Toast.makeText(MapActivity.this, "getCount():"+ c.getCount(), Toast.LENGTH_SHORT);
+                toasta.show();
+                for (int i = 0; i < c.getCount(); i++) {
+                    //SQL文の結果から、必要な値を取り出す
+                    String placename = c.getString(0);
+                    Double latitudes = c.getDouble(1);
+                    Double longitudes = c.getDouble(2);
+                    LatLng now = new LatLng(latitudes, longitudes);
+                    Marker melbourne = mMap.addMarker(new MarkerOptions().position(now).title(placename));
+                    melbourne.showInfoWindow();
+                    c.moveToNext();
+                }
             }
         }
-        // 各種コールバック
-        googleMap.setOnMapLongClickListener(this);
+
+
+            // Intent intent = new Intent(getApplication(), MapActivity.class);
+            String activity = getIntent().getStringExtra("Activity");
+            if (activity.equals("1")) {
+                LatLng now = new LatLng(latitude, longitude);
+                Marker melbourne = mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(now));
+                CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(now, 15);
+                mMap.moveCamera(cUpdate);
+                melbourne.showInfoWindow();
+            } else if (activity.equals("2")) {//場所も選択しておらず、GPSも使えない時
+                if (latitude2 != 0.0) {
+                    LatLng now = new LatLng(latitude2, longitude2);
+                    Marker maker = mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(now));
+                    CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(latitude2, longitude2), 15);
+                    mMap.moveCamera(cUpdate);
+                    maker.showInfoWindow();
+                } else if (latitude2 == 0.0) {
+                    LatLng shibuya = new LatLng(35, 139);
+                    Marker maker = mMap.addMarker(new MarkerOptions().position(shibuya).title("Marker in Shibuya"));
+                    maker.showInfoWindow();
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(shibuya));
+                    CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(35, 139), 12);
+                    mMap.moveCamera(cUpdate);
+                }
+            }
+            // 各種コールバック
+            googleMap.setOnMapLongClickListener(this);
+        //移動すればGPSを変更して表示したい。
+        //ボタンは、現在地を示すボタンが欲しい
+
     }
-
-    //移動すればGPSを変更して表示したい。
-    //ボタンは、現在地を示すボタンが欲しい
-
-
     //--------------------------------------------------------onMapLongClick()-----------------------------------------------------------//
     @Override
     public void onMapLongClick(LatLng latLng) {
