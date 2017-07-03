@@ -252,7 +252,7 @@ public class LocationActivity extends AppCompatActivity implements
                 builderlogout.setNeutralButton("ログアウト", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (username != null && !true == isNum(username)) {
-                            Toast.makeText(LocationActivity.this, "ログアウトしました", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LocationActivity.this, "ログアウトしました。", Toast.LENGTH_SHORT).show();
                             username = null;
                             MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
                             SQLiteDatabase db = helper.getWritableDatabase();
@@ -350,7 +350,7 @@ public class LocationActivity extends AppCompatActivity implements
                     }
                 });
                 //ここで、別のメソッドを呼び出して、それにって、if(else)で、ボタンの数、
-                
+
                 builder.setNegativeButton("ログイン", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         EditText getusername2 = (EditText) layout.findViewById(R.id.username);
