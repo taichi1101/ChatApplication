@@ -865,8 +865,6 @@ public class LocationActivity extends AppCompatActivity implements
                     }else {
                         intent.putExtra("usernamea", username);
                         usernamea = getIntent().getStringExtra("username");
-                        Toast toasta = Toast.makeText(LocationActivity.this, usernamea + ":元は" + username, Toast.LENGTH_SHORT);
-                        toasta.show();
                     }
 
                     startActivity(intent);
