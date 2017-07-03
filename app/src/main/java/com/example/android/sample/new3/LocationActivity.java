@@ -236,162 +236,172 @@ public class LocationActivity extends AppCompatActivity implements
         //一つ目menuボタンを押した時の処理/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         int id = item.getItemId();
         if (id == R.id.action_setlogin) {
+
             // カスタムビューを設定
             LayoutInflater inflater = (LayoutInflater) this.getSystemService(
                     LAYOUT_INFLATER_SERVICE);
 
+            //ログインしてる時はこっち
+            if (username != null && !true == isNum(username)){//その時は、ログアウトのみの表示
 
-            /**
-           // MenuItem action_deleteplace = (MenuItem) menu.findItem(R.id.action_deleteplace);
-           // action_deleteplace.getTitle();
+                //alertを作る前で、endo/ログアウトになってる場合は、ログアウト専用のalertを表示するようにする
 
-            final  View layout = inflater.inflate(R.layout.dialog_contact_us, (ViewGroup) findViewById(R.id.layout_root));
-
-            Alart alart=new Alart();
-            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            alart.newSet(inflater,this,layout,inputMethodManager);
-
-            System.out.println("aaaaaaazzzzzzzzzzzzeeeeeeeeeettttttttt"+username);
-            //username =alart.getUsername();
-            System.out.println("aaaaaaaaaakkkkkkkkkkkeeeeeeeeeeessssssssiiiiiiiii"+username);
-           // spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
-           // arrayadapter();
-
-           // onStart();
-            **/
-
- ///////////////////////////////////////////////////////////////////////ここに、新しい、サイトの情報/////////////////////////
-/**
-                // いろいろな準備 (1)
-
-                MyConfirmDialog.OnResultListener impl = new MyConfirmDialog.OnResultListener() {
-                    public void onOK() {
-                        // (1)やMyActivity のメンバ変数を使った処理
+                final View layoutlogout = inflater.inflate(R.layout.dialog_logout, (ViewGroup) findViewById(R.id.layout_root));
+                AlertDialog.Builder builderlogout = new AlertDialog.Builder(this);
+                builderlogout.setView(layoutlogout);
+                builderlogout.setNeutralButton("ログアウト", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (username != null && !true == isNum(username)) {
+                            Toast.makeText(LocationActivity.this, "ログアウトしました", Toast.LENGTH_SHORT).show();
+                            username = null;
+                            MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
+                            SQLiteDatabase db = helper.getWritableDatabase();
+                            spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+                        } else {
+                            Toast.makeText(LocationActivity.this, "ログインしていません", Toast.LENGTH_SHORT).show();
+                        }
+                        onStart();
                     }
-                };
+                });
+                builderlogout.create().show();
+            }else {
 
-                new MyConfirmDialog().show(this, impl);
+                //////////////
+
+
+                /**
+                 // MenuItem action_deleteplace = (MenuItem) menu.findItem(R.id.action_deleteplace);
+                 // action_deleteplace.getTitle();
+
+                 final  View layout = inflater.inflate(R.layout.dialog_contact_us, (ViewGroup) findViewById(R.id.layout_root));
+
+                 Alart alart=new Alart();
+                 InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                 alart.newSet(inflater,this,layout,inputMethodManager);
+
+                 System.out.println("aaaaaaazzzzzzzzzzzzeeeeeeeeeettttttttt"+username);
+                 //username =alart.getUsername();
+                 System.out.println("aaaaaaaaaakkkkkkkkkkkeeeeeeeeeeessssssssiiiiiiiii"+username);
+                 // spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+                 // arrayadapter();
+
+                 // onStart();
+                 **/
+
+                ///////////////////////////////////////////////////////////////////////ここに、新しい、サイトの情報/////////////////////////
+/**
+ // いろいろな準備 (1)
+
+ MyConfirmDialog.OnResultListener impl = new MyConfirmDialog.OnResultListener() {
+ public void onOK() {
+ // (1)やMyActivity のメンバ変数を使った処理
+ }
+ };
+
+ new MyConfirmDialog().show(this, impl);
  **/
 
-            ///////////////////////////////////////////////////////////////////////この間　
+                ///////////////////////////////////////////////////////////////////////この間　
 
 
-            final View layout = inflater.inflate(R.layout.dialog_contact_us, (ViewGroup) findViewById(R.id.layout_root));
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setView(layout);
-            builder.setPositiveButton("新規登録", new DialogInterface.OnClickListener() {
+                final View layout = inflater.inflate(R.layout.dialog_contact_us, (ViewGroup) findViewById(R.id.layout_root));
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setView(layout);
+                builder.setPositiveButton("新規登録", new DialogInterface.OnClickListener() {
 
-                public void onClick(DialogInterface dialog, int which) {
-                    EditText getusername2 = (EditText) layout.findViewById(R.id.username);
-                    EditText getpassword2 = (EditText) layout.findViewById(R.id.password);
-                    String getusername = getusername2.getText().toString();
-                    String password = getpassword2.getText().toString();
-                    getusername = getusername.trim();
-                    password = password.trim();
-                    if (getusername.length() == 0 || password.length() == 0) {
-                        Toast toast = Toast.makeText(LocationActivity.this, "入力されていません", Toast.LENGTH_SHORT);
-                        toast.show();
-                    } else if (getusername.length() != 0 && password.length() != 0) {
+                    public void onClick(DialogInterface dialog, int which) {
+                        EditText getusername2 = (EditText) layout.findViewById(R.id.username);
+                        EditText getpassword2 = (EditText) layout.findViewById(R.id.password);
+                        String getusername = getusername2.getText().toString();
+                        String password = getpassword2.getText().toString();
+                        getusername = getusername.trim();
+                        password = password.trim();
+                        if (getusername.length() == 0 || password.length() == 0) {
+                            Toast toast = Toast.makeText(LocationActivity.this, "入力されていません", Toast.LENGTH_SHORT);
+                            toast.show();
+                        } else if (getusername.length() != 0 && password.length() != 0) {
+                            MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
+                            SQLiteDatabase db = helper.getWritableDatabase();
+                            String sql = "select username,password from user where username = '" + getusername + "' and password = '" + password + "';";
+                            Cursor c = db.rawQuery(sql, null);
+                            c.moveToFirst();
+                            String checkusername = null;
+                            for (int i = 1; i <= c.getCount(); i++) {
+                                checkusername = c.getString(0);
+                            }
+                            //こっちはusernameが使われてなければok
+                            if (checkusername != null) {
+                                Toast toast = Toast.makeText(LocationActivity.this, "usernameがすでに使われています", Toast.LENGTH_SHORT);
+                                toast.show();
+                            } else if (checkusername == null) {
+                                //新規登録する
+                                String insertsql = "insert into user (username,password) " +
+                                        "values('" + getusername + "','" + password + "');";
+                                db.execSQL(insertsql);
+                                username = getusername;
+                                spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+
+                                onStart();
+                                System.out.println("新規登録完了" + username);
+                                Toast toast = Toast.makeText(LocationActivity.this, "登録完了しました。ログインしました", Toast.LENGTH_SHORT);
+                                toast.show();
+                            }
+                        }
+                    }
+                });
+                //ここで、別のメソッドを呼び出して、それにって、if(else)で、ボタンの数、
+                
+                builder.setNegativeButton("ログイン", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        EditText getusername2 = (EditText) layout.findViewById(R.id.username);
+                        EditText getpassword2 = (EditText) layout.findViewById(R.id.password);
+                        String getusername = getusername2.getText().toString();
+                        String password = getpassword2.getText().toString();
+                        //データベースから取得してあればログイン
+                        String sql = "select username from user where username = '" + getusername + "' and password = '" + password + "';";
                         MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
                         SQLiteDatabase db = helper.getWritableDatabase();
-                        String sql = "select username,password from user where username = '" + getusername + "' and password = '" + password + "';";
                         Cursor c = db.rawQuery(sql, null);
-                        c.moveToFirst();
-                        String checkusername = null;
-                        for (int i = 1; i <= c.getCount(); i++) {
-                            checkusername = c.getString(0);
-                        }
-                        //こっちはusernameが使われてなければok
-                        if (checkusername != null) {
-                            Toast toast = Toast.makeText(LocationActivity.this, "usernameがすでに使われています", Toast.LENGTH_SHORT);
+                        Integer count = c.getCount();
+                        if (count != 0) {
+                            c.moveToFirst();
+                            String checkusername = c.getString(0);
+                            //ログインする
+                            Toast toast = Toast.makeText(LocationActivity.this, "ログインしました", Toast.LENGTH_SHORT);
                             toast.show();
-                        } else if (checkusername == null) {
-                            //新規登録する
-                            String insertsql = "insert into user (username,password) " +
-                                    "values('" + getusername + "','" + password + "');";
-                            db.execSQL(insertsql);
-                            username = getusername;
-                            spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
+                            //そして、usernameにset
+                            username = checkusername;
+                            System.out.println("ログイン完了" + username);
+                            spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+                            arrayadapter();
+                            //onStart();
+                            //いちいちonStartしてるから帰る
 
-                            onStart();
-                            System.out.println("新規登録完了" + username);
-                            Toast toast = Toast.makeText(LocationActivity.this, "登録完了しました。ログインしました", Toast.LENGTH_SHORT);
+                        } else if (count == 0) {
+                            Toast toast = Toast.makeText(LocationActivity.this, "ログインできませんでした。", Toast.LENGTH_SHORT);
+                            toast.show();
+                            getusername2.setText("");
+                            getpassword2.setText("");
+
+                        } else {
+                            Toast toast = Toast.makeText(LocationActivity.this, "ログインできませんでした。count:" + count, Toast.LENGTH_SHORT);
                             toast.show();
                         }
                     }
-                }
-            });
-            //ここで、別のメソッドを呼び出して、それにって、if(else)で、ボタンの数、
 
-
-            //ここで、使ったmenuを使って、押されたボタンの、titleを取得して、それ次第で、レイアウトを表示する
-            //使うのは、
-            builder.setNeutralButton("ログアウト", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    if (username !=null && !true == isNum(username)) {
-                        Toast.makeText(LocationActivity.this, "ログアウトしました" , Toast.LENGTH_SHORT).show();
-                        username=null;
-                        MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
-                        SQLiteDatabase db = helper.getWritableDatabase();
-                        spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
-                    }else {
-                        Toast.makeText(LocationActivity.this, "ログインしていません" , Toast.LENGTH_SHORT).show();
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface arg0) {
+                        EditText getusername2 = (EditText) layout.findViewById(R.id.username);
+                        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.showSoftInput(getusername2, 0);
                     }
-                    onStart();
-                }
-            });
-            builder.setNegativeButton("ログイン", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    EditText getusername2 = (EditText) layout.findViewById(R.id.username);
-                    EditText getpassword2 = (EditText) layout.findViewById(R.id.password);
-                    String getusername = getusername2.getText().toString();
-                    String password = getpassword2.getText().toString();
-                    //データベースから取得してあればログイン
-                    String sql = "select username from user where username = '" + getusername + "' and password = '" + password + "';";
-                    MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
-                    SQLiteDatabase db = helper.getWritableDatabase();
-                    Cursor c = db.rawQuery(sql, null);
-                    Integer count = c.getCount();
-                    if (count != 0) {
-                        c.moveToFirst();
-                        String checkusername = c.getString(0);
-                        //ログインする
-                        Toast toast = Toast.makeText(LocationActivity.this, "ログインしました", Toast.LENGTH_SHORT);
-                        toast.show();
-                        //そして、usernameにset
-                        username = checkusername;
-                        System.out.println("ログイン完了" + username);
-                        spinnerItems= favorite.favorite(LocationActivity.this,username);//これでok
-                        arrayadapter();
-                        //onStart();
-                        //いちいちonStartしてるから帰る
+                });
+                alertDialog.show();
 
-                    } else if (count == 0) {
-                        Toast toast = Toast.makeText(LocationActivity.this, "ログインできませんでした。", Toast.LENGTH_SHORT);
-                        toast.show();
-                        getusername2.setText("");
-                        getpassword2.setText("");
-
-                    } else {
-                        Toast toast = Toast.makeText(LocationActivity.this, "ログインできませんでした。count:"+count, Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
-                }
-
-            });
-            AlertDialog alertDialog = builder.create();
-            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface arg0) {
-                    EditText getusername2 = (EditText) layout.findViewById(R.id.username);
-                    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.showSoftInput(getusername2, 0);
-                }
-            });
-            alertDialog.show();
-
-//-------------------------------------------------現在表示のおき
-
+            }//ここは、ログイン/新規登録 とmenuが表示されてる場合は、出ない
 //-------------------------------------------------現在表示のおきにいり削除--------------------------------------------------//
         } else if (id == R.id.action_deleteplace) {
             // カスタムビューを設定
