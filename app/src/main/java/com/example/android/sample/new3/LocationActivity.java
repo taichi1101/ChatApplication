@@ -190,6 +190,7 @@ public class LocationActivity extends AppCompatActivity implements
                 action_deleteuser.setTitle(username + "/アカウント");
                 action_setlogin.setTitle(username + "/ログアウト");
             }
+
             if (deleteitem.equals("GPSの現在地")) {
                 action_deleteplace.setVisible(false);
                 action_updateplace.setVisible(false);
@@ -203,8 +204,6 @@ public class LocationActivity extends AppCompatActivity implements
                     action_nowscreenset.setVisible(false);
                     action_deleteplace.setVisible(true);
                     action_updateplace.setVisible(true);
-                    action_deleteplace.setTitle(deleteitem + "/アカウント");
-                    action_updateplace.setTitle(deleteitem + "/変更");
                 }
             }
         }
