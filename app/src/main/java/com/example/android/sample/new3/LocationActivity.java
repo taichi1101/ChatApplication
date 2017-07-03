@@ -851,12 +851,15 @@ public class LocationActivity extends AppCompatActivity implements
                     if(username == null) {
                         intent.putExtra("usernamea", "null");
                         usernamea = getIntent().getStringExtra("usernamea");
+                        Toast toasta = Toast.makeText(LocationActivity.this, usernamea + ":元の" + username, Toast.LENGTH_SHORT);
+                        toasta.show();
                     }else {
                         intent.putExtra("usernamea", username);
-                        usernamea = getIntent().getStringExtra("usernamea");
+                        usernamea = getIntent().getStringExtra("username");
+                        Toast toasta = Toast.makeText(LocationActivity.this, usernamea + ":元は" + username, Toast.LENGTH_SHORT);
+                        toasta.show();
                     }
-                        Toast toasta = Toast.makeText(LocationActivity.this, usernamea + ":元" + username, Toast.LENGTH_SHORT);
-                    toasta.show();
+
                     startActivity(intent);
 //---------------------------------------------else つまり、お気に入り----------------------------------------------------------------//
                 } else {
