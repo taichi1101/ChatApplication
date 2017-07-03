@@ -21,7 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import static com.example.android.sample.new3.LocationActivity.username;
+//import static com.example.android.sample.new3.LocationActivity.username;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,GoogleMap.OnMapLongClickListener {
 
@@ -32,6 +32,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     Double longitude=0.0;
     Globals globals;
 
+    String usernamea;
 
    // getDouble(String key) getDouble(String key, double defaultValue)
     @Override
@@ -59,11 +60,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         //データベース名は？ "insert into favorite (username,placename,latitude,longitude) " +
 
         if( getIntent().getStringExtra("usernamea") == "null"){
-            username = getIntent().getStringExtra("usernamea");
-        } else if(getIntent().getStringExtra("username") != "null") {
-            username = getIntent().getStringExtra("username");
+            //usernameに値を入れると、こんな風になっちゃうんだ
+           // username = getIntent().getStringExtra("usernamea");
+        } else if(getIntent().getStringExtra("usernamea") != "null") {
+            usernamea = getIntent().getStringExtra("usernamea");
 
-            String sql = "select placename,latitude,longitude from favorite where username == '" + username + "';";
+            String sql = "select placename,latitude,longitude from favorite where username == '" + usernamea + "';";
             MyOpenHelper helper = new MyOpenHelper(MapActivity.this);
             SQLiteDatabase db = helper.getWritableDatabase();
             Cursor c = db.rawQuery(sql, null);
@@ -90,7 +92,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(now));
                 CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(now, 15);
                 mMap.moveCamera(cUpdate);
-                //melbourne.showInfoWindow();
+                melbourne.showInfoWindow();
             } else if (activity.equals("2")) {//場所も選択しておらず、GPSも使えない時
                 if (latitude2 != 0.0) {
                     LatLng now = new LatLng(latitude2, longitude2);
