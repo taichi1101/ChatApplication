@@ -48,6 +48,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     @Override
     public void onMapReady(GoogleMap googleMap) {
         System.out.println("onMapReady");
+
         mMap = googleMap;
         //まず初期値として、今いる場所を指定しないと行けないから,latitudeをintentにsetする
         latitude = getIntent().getDoubleExtra("latitude", latitude);
@@ -60,12 +61,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         //データベース名は？ "insert into favorite (username,placename,latitude,longitude) " +
 
         if( getIntent().getStringExtra("usernamea") == "null"){
-            //usernameに値を入れると、こんな風になっちゃうんだ
-           // username = getIntent().getStringExtra("usernamea");
+
         } else if(getIntent().getStringExtra("usernamea") != "null") {
             usernamea = getIntent().getStringExtra("usernamea");
-
-            String sql = "select placename,latitude,longitude from favorite where username == '" + usernamea + "';";
+             String sql = "select placename,latitude,longitude from favorite where username == '" + usernamea + "';";
             MyOpenHelper helper = new MyOpenHelper(MapActivity.this);
             SQLiteDatabase db = helper.getWritableDatabase();
             Cursor c = db.rawQuery(sql, null);
@@ -77,6 +76,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     Double longitudes = c.getDouble(2);
                     LatLng now = new LatLng(latitudes, longitudes);
                     Marker melbourne = mMap.addMarker(new MarkerOptions().position(now).title(placename));
+                    //タイトルは、一つしか表示されないらしい
                     melbourne.showInfoWindow();
                     c.moveToNext();
                 }
@@ -87,13 +87,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             // Intent intent = new Intent(getApplication(), MapActivity.class);
             String activity = getIntent().getStringExtra("Activity");
             if (activity.equals("1")) {
+
                 LatLng now = new LatLng(latitude, longitude);
                 Marker melbourne = mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(now));
                 CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(now, 15);
                 mMap.moveCamera(cUpdate);
-                melbourne.showInfoWindow();
-            } else if (activity.equals("2")) {//場所も選択しておらず、GPSも使えない時
+                 melbourne.showInfoWindow();
+            } else if (activity.equals("2")) {//場所も選択していて、GPSも使えない時
                 if (latitude2 != 0.0) {
                     LatLng now = new LatLng(latitude2, longitude2);
                     Marker maker = mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
