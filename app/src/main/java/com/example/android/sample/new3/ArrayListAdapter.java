@@ -65,7 +65,8 @@ public class ArrayListAdapter extends BaseAdapter {
         ((TextView)convertView.findViewById(R.id.username)).setText(adapterlist.get(position).getUsername());
         ((TextView)convertView.findViewById(R.id.data)).setText(adapterlist.get(position).getData());
         ((TextView)convertView.findViewById(R.id.comment)).setText(adapterlist.get(position).getComment());
-        ((TextView)convertView.findViewById(R.id.idnumber)).setText(adapterlist.get(position).getIdnumber());
+        //この下を、idnumberを表示しなくした時に消した
+       // ((TextView)convertView.findViewById(R.id.idnumber)).setText(adapterlist.get(position).getIdnumber());
         return convertView;
         //return new UserListView(ctx, user.data, user.username, user.comment,user.idnumber);
     }
