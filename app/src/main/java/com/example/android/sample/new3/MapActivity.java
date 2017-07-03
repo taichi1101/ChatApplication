@@ -58,8 +58,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         //データベースから、緯度経度と、タイトルを取得する
         //データベース名は？ "insert into favorite (username,placename,latitude,longitude) " +
 
-        if( getIntent().getStringExtra("username") == "null"){
-            username = getIntent().getStringExtra("username");
+        if( getIntent().getStringExtra("usernamea") == "null"){
+            username = getIntent().getStringExtra("usernamea");
         } else if(getIntent().getStringExtra("username") != "null") {
             username = getIntent().getStringExtra("username");
 
@@ -69,10 +69,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             Cursor c = db.rawQuery(sql, null);
             c.moveToFirst();
             if (c.getCount() != 0) {
-                Toast toasta = Toast.makeText(MapActivity.this, "getCount():"+ c.getCount(), Toast.LENGTH_SHORT);
-                toasta.show();
                 for (int i = 0; i < c.getCount(); i++) {
-                    //SQL文の結果から、必要な値を取り出す
                     String placename = c.getString(0);
                     Double latitudes = c.getDouble(1);
                     Double longitudes = c.getDouble(2);
@@ -93,7 +90,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(now));
                 CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(now, 15);
                 mMap.moveCamera(cUpdate);
-                melbourne.showInfoWindow();
+                //melbourne.showInfoWindow();
             } else if (activity.equals("2")) {//場所も選択しておらず、GPSも使えない時
                 if (latitude2 != 0.0) {
                     LatLng now = new LatLng(latitude2, longitude2);
