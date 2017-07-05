@@ -57,6 +57,9 @@ public class select {
                     " and longitude - " + longitude + " <= " + clearlongitude + " and "
                     + longitude + " - longitude <= " + clearlongitude + ";";
 
+        //コメントの内容の左側に、>があった場合それを取得して判断しないといけない
+        //左がわがコメントかどうかを判断して、コメント編集をしてる場所を見つけて、
+        //どうやって判断してるかを真似して、whereするようにする
         Cursor c = db.rawQuery(sql, null);
                     c.moveToFirst();
         if(c.getCount()!=0) {
