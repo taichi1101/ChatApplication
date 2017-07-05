@@ -1,4 +1,3 @@
-//New3 あ つぎは、Adapterを自作して、listの中の文字をクラスごとに受け取る
 package com.example.android.sample.new3;
 
 import android.Manifest;
@@ -693,7 +692,7 @@ public class LocationActivity extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
 
-        username="endo";
+        //username="endo";
 
         listView = (ListView) findViewById(R.id.list_view);
         // LocationRequest を生成して精度、インターバルを設定
@@ -706,8 +705,7 @@ public class LocationActivity extends AppCompatActivity implements
 
         Alart alart=new Alart();
         if(alart.getUsername()==null) {
-            System.out.println("nullllllllllllllllllllllllllllllllllnulllllllllllllllnullllllllllnullllllllll");
-            // if(getIntent().getStringExtra("sername")==null) {
+           // if(getIntent().getStringExtra("sername")==null) {
             //  }else if(getIntent().getStringExtra("sername")!=null){
         }else if(alart.getUsername()!=null){
             //String getusername = getIntent().getStringExtra("sername");
@@ -719,10 +717,6 @@ public class LocationActivity extends AppCompatActivity implements
            // getIntent().putExtra("username",aaaa);
             alart.setUsername(aaaa);
         }
-
-
-
-
 
         Globals globals;
        globals =(Globals)this.getApplication();
