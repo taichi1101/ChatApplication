@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -691,7 +692,9 @@ public class LocationActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        System.out.println("onstataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa呼ばれた");
+
+        username="endo";
+
         listView = (ListView) findViewById(R.id.list_view);
         // LocationRequest を生成して精度、インターバルを設定
         locationRequest = LocationRequest.create();
@@ -701,8 +704,6 @@ public class LocationActivity extends AppCompatActivity implements
 
         String activity = getIntent().getStringExtra("Activity");
 
-
-        System.out.println("あああああああああああああああああいいいいいいいいいいいいいいいいえええええええええええええええ");
         Alart alart=new Alart();
         if(alart.getUsername()==null) {
             System.out.println("nullllllllllllllllllllllllllllllllllnulllllllllllllllnullllllllllnullllllllll");
@@ -712,7 +713,6 @@ public class LocationActivity extends AppCompatActivity implements
             //String getusername = getIntent().getStringExtra("sername");
             //username=getusername;
             username=alart.getUsername();
-            System.out.println("ううううううううううううううううううううううううううううううううううううううう:"+username);
             spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
             arrayadapter();
             String aaaa=null;
@@ -767,6 +767,8 @@ public class LocationActivity extends AppCompatActivity implements
         //---------------- Spinner の選択されているアイテムを設定-------------//
         spinner = (Spinner) findViewById(R.id.spinner);
 
+
+
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -776,6 +778,18 @@ public class LocationActivity extends AppCompatActivity implements
                 //クラス変数に入れる。今選択されていたspinnerを後で指定できるように
                 spinnerposition=position;
 
+                //あ
+                //違うのを選択しても、これになるから、intentにnullをpushする
+                //spinner = (Spinner) findViewById(R.id.spinner);
+
+               if("null" != getIntent().getStringExtra("title")){
+                    String maptitle= getIntent().getStringExtra("title");
+                    setSelection(spinner,maptitle);
+                   Intent intent = getIntent();
+                    intent.putExtra("title", "null");
+                     }
+
+                //あ
                 //削除の場合はいらない
                 //------------------------------------------spinner初回起動------------------------------------------------//
                 if (spinner.isFocusable() == false) {
@@ -803,6 +817,7 @@ public class LocationActivity extends AppCompatActivity implements
                         return;
                     }
                 }
+
 //--------------------------------------------gpsの現在地---------------------------------------------------------------------------//
                 if (item.equals("GPSの現在地")) {
                     System.out.println("GPSの現在地");
@@ -865,8 +880,6 @@ public class LocationActivity extends AppCompatActivity implements
                     }else {
                         intent.putExtra("usernamea", username);
                         usernamea = getIntent().getStringExtra("username");
-                        Toast toasta = Toast.makeText(LocationActivity.this, usernamea + ":元は" + username, Toast.LENGTH_SHORT);
-                        toasta.show();
                     }
 
                     startActivity(intent);

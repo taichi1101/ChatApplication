@@ -53,9 +53,10 @@ public class MainActivity extends AppCompatActivity {
        // db.execSQL(CREATE_TABLE4);             //ここここ
 
         //別のとこにもある
+       // db.execSQL("delete from allidd;");
        // String insertsql = "insert into allidd (id) values ('0');";
         //nologinidd
-        // db.execSQL(insertsql);
+       //  db.execSQL(insertsql);
 
     }
 
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_PERMISSION);
 
         } else {
-            Toast toast = Toast.makeText(this, "許可しない場合はGPSを使ったサービスは使えません", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(this, "許可されない場合はGPSを使ったサービスは使えません", Toast.LENGTH_SHORT);
             toast.show();
 
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, REQUEST_PERMISSION);

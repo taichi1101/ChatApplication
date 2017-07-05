@@ -23,7 +23,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 //import static com.example.android.sample.new3.LocationActivity.username;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback,GoogleMap.OnMapLongClickListener {
+public class MapActivity extends FragmentActivity implements OnMapReadyCallback,GoogleMap.OnMapLongClickListener,
+        GoogleMap.OnInfoWindowClickListener {
+
 
     private GoogleMap mMap;
     Double latitude2=0.0;
@@ -31,6 +33,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     Double latitude=0.0;
     Double longitude=0.0;
     Globals globals;
+
+    String stringactivity;
 
     String usernamea;
 
@@ -88,6 +92,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             String activity = getIntent().getStringExtra("Activity");
             if (activity.equals("1")) {
 
+                stringactivity ="1";
                 LatLng now = new LatLng(latitude, longitude);
                 Marker melbourne = mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(now));
@@ -95,6 +100,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 mMap.moveCamera(cUpdate);
                  melbourne.showInfoWindow();
             } else if (activity.equals("2")) {//場所も選択していて、GPSも使えない時
+
+                stringactivity="2";
                 if (latitude2 != 0.0) {
                     LatLng now = new LatLng(latitude2, longitude2);
                     Marker maker = mMap.addMarker(new MarkerOptions().position(now).title("You are here"));
@@ -115,6 +122,24 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             googleMap.setOnMapLongClickListener(this);
         //移動すればGPSを変更して表示したい。
         //ボタンは、現在地を示すボタンが欲しい
+
+        mMap.setOnInfoWindowClickListener(MapActivity.this);
+    }
+    //情報ウィンドウのクリック
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+       //押されたtitleの文字のspinnerを選択する
+        //ここで、LocationActivityに戻る
+        //そして、intentに意味を持たせて、その値が、"情報クリック"だった場合は、setselectionをやるその時のタイトルを送る
+        //とりあえず値を取得して戻る
+        String title =marker.getTitle();
+
+        Toast toast = Toast.makeText(MapActivity.this, title, Toast.LENGTH_SHORT);
+        toast.show();
+        Intent intent = new Intent(getApplication(), LocationActivity.class);
+        intent.putExtra("Activity",stringactivity);
+        intent.putExtra("title", title);
+       startActivity(intent);
 
     }
     //--------------------------------------------------------onMapLongClick()-----------------------------------------------------------//
