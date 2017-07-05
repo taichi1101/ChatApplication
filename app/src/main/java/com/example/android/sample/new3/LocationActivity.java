@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -778,12 +779,15 @@ public class LocationActivity extends AppCompatActivity implements
                 spinnerposition=position;
 
                 //あ
+                //違うのを選択しても、これになるから、intentにnullをpushする
                 //spinner = (Spinner) findViewById(R.id.spinner);
-                if(null != getIntent().getStringExtra("title")){
+
+               if("null" != getIntent().getStringExtra("title")){
                     String maptitle= getIntent().getStringExtra("title");
                     setSelection(spinner,maptitle);
-                    System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"+spinner);
-                }
+                   Intent intent = getIntent();
+                    intent.putExtra("title", "null");
+                     }
 
                 //あ
                 //削除の場合はいらない
