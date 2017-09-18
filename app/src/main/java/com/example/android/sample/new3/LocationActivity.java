@@ -1,5 +1,18 @@
 package com.example.android.sample.new3;
 
+//本のfirebase
+//import com.firebase.client.Firebase;
+//import com.firebase.client.FirebaseError;
+import com.google.android.gms.common.SignInButton;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import java.util.HashMap;
+import java.util.Map;
+//
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -74,12 +87,83 @@ public class LocationActivity extends AppCompatActivity implements
         ListView.OnItemClickListener,ListView.OnItemLongClickListener {
     //onMapReadyをコールバックすれば自動でonMapLeadyが呼ばれる
 
-   private String spinnername=null;
+
+
+    //firebase本 import + ここ
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+    private TextView mTxtToday;
+    private TextView mTxtHistory;
+
+    private void setup(){
+
+        DatabaseReference reference = database.getReference("attedance");
+        Query query = reference.orderByKey();
+        query.addValueEventListener(new ValueEventListener(){
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot){
+
+                mTxtHistory.setText(null);
+
+                StringBuilder sb = new StringBuilder();
+                for(DataSnapshot snapshot :dataSnapshot.getChildren()){
+
+                    String key =snapshot.getKey();
+                    Attendance attendance = snapshot.getValue(Attendance.class);
+
+                    sb.append(key).append(" ").append(attendance.arrive).append(" ").append(attendance.leave);
+                    sb.append("¥n");
+                }
+                mTxtHistory.setText(sb.toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError){
+
+            }
+        });
+    }
+
+    private void add(String date,String arrive){
+
+        Attendance attendance = new Attendance();
+        attendance.arrive = arrive;
+        attendance.leave = "";
+
+        DatabaseReference reference = database.getReference("attendance"+"/"+date);
+        reference.setValue(attendance);
+    }
+
+    /**
+     * 退社時間の更新
+     * @param date 年月日
+     * @param leave 退社時間
+     */
+
+    private void update(String date,String leave){
+        Map<String,Object>map = new HashMap<>();
+        map.put("leave",leave);
+
+        DatabaseReference reference = database.getReference("attendance"+"/"+date);
+        reference.updateChildren(map);
+    }
+
+    //作って見た remove()
+    private void remove(String date){
+        //このしただけ、本物
+        DatabaseReference reference = database.getReference("attendance" + "/"+ date);
+        reference.removeValue();
+    }
+    //firebase
+
+
+    private String spinnername=null;
 
 
     favorite favorite = new favorite();
     //クラス変数にする
     String toyou = null;
+
     String updatetouchusernamescopy;
     //listViewの定義
     protected ListView listView;
@@ -131,7 +215,7 @@ public class LocationActivity extends AppCompatActivity implements
 
 
 
-   public ArrayList<User> adapterlist;
+    public ArrayList<User> adapterlist;
     //--------------------------------static のクラス変数 usernameを定義、usernameをnullに----------------------------------------//
     static String username = null;
 
@@ -217,17 +301,17 @@ public class LocationActivity extends AppCompatActivity implements
         spinnermath=zz;//押された時に代入しておく、これは、onStart()でリセットされて、初期値の30.0になる?
         //ここで、latitude2が、mapのと違ければ、つまり、okが解除されてたら、
         //latitude2を使う
-            if(latitude!=0.0&&latitude!=0){
-                //なんでlatitudeが2のやつになってんの？
-                select(latitude,longitude,spinnermath);
+        if(latitude!=0.0&&latitude!=0){
+            //なんでlatitudeが2のやつになってんの？
+            select(latitude,longitude,spinnermath);
 
-            }else{
-                //現在地が取得できない場合は、listを、とりあえず削除するメソッドを
-                Toast toast = Toast.makeText(LocationActivity.this, "GPSがOFFです", Toast.LENGTH_SHORT);
-                toast.show();
-                //OFFの場合は、onStart()?
-                onStart();
-            }
+        }else{
+            //現在地が取得できない場合は、listを、とりあえず削除するメソッドを
+            Toast toast = Toast.makeText(LocationActivity.this, "GPSがOFFです", Toast.LENGTH_SHORT);
+            toast.show();
+            //OFFの場合は、onStart()?
+            onStart();
+        }
     }
 
     //------------------------------------------------------------新規登録/ログイン--------------------------------------------------------//
@@ -310,6 +394,10 @@ public class LocationActivity extends AppCompatActivity implements
                 builder.setPositiveButton("新規登録", new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int which) {
+
+
+///////////////FFFFFFFFFFFF
+                        //Editから取得した2つをinsertしてる
                         EditText getusername2 = (EditText) layout.findViewById(R.id.username);
                         EditText getpassword2 = (EditText) layout.findViewById(R.id.password);
                         String getusername = getusername2.getText().toString();
@@ -320,33 +408,208 @@ public class LocationActivity extends AppCompatActivity implements
                             Toast toast = Toast.makeText(LocationActivity.this, "入力されていません", Toast.LENGTH_SHORT);
                             toast.show();
                         } else if (getusername.length() != 0 && password.length() != 0) {
-                            MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
-                            SQLiteDatabase db = helper.getWritableDatabase();
-                            String sql = "select username,password from user where username = '" + getusername + "' and password = '" + password + "';";
-                            Cursor c = db.rawQuery(sql, null);
-                            c.moveToFirst();
-                            String checkusername = null;
-                            for (int i = 1; i <= c.getCount(); i++) {
-                                checkusername = c.getString(0);
-                            }
-                            //こっちはusernameが使われてなければok
-                            if (checkusername != null) {
-                                Toast toast = Toast.makeText(LocationActivity.this, "usernameがすでに使われています", Toast.LENGTH_SHORT);
-                                toast.show();
-                            } else if (checkusername == null) {
-                                //新規登録する
-                                String insertsql = "insert into user (username,password) " +
-                                        "values('" + getusername + "','" + password + "');";
-                                db.execSQL(insertsql);
-                                username = getusername;
-                                spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+                            //MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
 
-                                onStart();
-                                System.out.println("新規登録完了" + username);
-                                Toast toast = Toast.makeText(LocationActivity.this, "登録完了しました。ログインしました", Toast.LENGTH_SHORT);
-                                toast.show();
-                            }
+                            //取得
+//                            String sql = "select username,password from user where username = '" + getusername + "' and password = '" + password + "';";
+//                            Cursor c = db.rawQuery(sql, null);
+//                            c.moveToFirst();
+//                            String checkusername = null;
+//                            for (int i = 1; i <= c.getCount(); i++) {
+//                                checkusername = c.getString(0);
+//                            }
+//                            //こっちはusernameが使われてなければok
+//                            if (checkusername != null) {
+//                                Toast toast = Toast.makeText(LocationActivity.this, "usernameがすでに使われています", Toast.LENGTH_SHORT);
+//                                toast.show();
+//                            } else if (checkusername == null) {
+
+                            //FFFFFFFFFFFFFFFFFFFFFF
+
+
+///////////////////////////////////////////ここから、
+//
+//                        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+//                            DatabaseReference ref = database.getReference("chatapplication-879e5/database/data");
+//                            DatabaseReference usersRef = ref.child("users");
+//
+//                        Map<String, Users> users = new HashMap<String, Users>();
+//                        users.put("alanisawesome", new Users("June 23, 1912", "Alan Turing"));
+//                        users.put("gracehop", new Users("December 9, 1906", "Grace Hopper"));
+//                        usersRef.setValue(users);
+//
+//                        //commit完了コールバック
+//                        DatabaseReference dataRef = ref.child("data");
+//                        dataRef.setValue("I'm writing data", new DatabaseReference.CompletionListener() {
+//                            @Override
+//                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+//                                if (databaseError != null) {
+//                                    System.out.println("Data could not be saved " + databaseError.getMessage());
+//                                } else {
+//                                    System.out.println("Data saved successfully.");
+//                                }
+//                            }
+//                        });
+//
+//                        //Post つまり、Push
+//                        DatabaseReference postsRef = ref.child("posts");
+//                        DatabaseReference newPostRef = postsRef.push();
+//                        newPostRef.setValue(new Post("gracehop", "Announcing COBOL, a New Programming Language"));
+//
+//                        //データ取得に使うKeyの取得
+//                     DatabaseReference pushedPostRef = postsRef.push();
+//                        String postId = pushedPostRef.getKey();
+//
+//                            DatabaseReference mPostReference = FirebaseDatabase.getInstance().getReference()
+//                            .child("posts").child(postId);
+//
+//                            ValueEventListener postListener = new ValueEventListener() {
+//                                @Override
+//                                public void onDataChange(DataSnapshot dataSnapshot) {
+//                                    Post post = dataSnapshot.getValue(Post.class);
+//                                    Toast toast2 = Toast.makeText(LocationActivity.this, post.author, Toast.LENGTH_SHORT);
+//                                    toast2.show();
+//                                    System.out.println("ああああああああああああああああああああああああああああああああああああああ");
+//                                }
+//
+//                                @Override
+//                                public void onCancelled(DatabaseError databaseError) {
+//                                    Toast toast3 = Toast.makeText(LocationActivity.this, "post.author", Toast.LENGTH_SHORT);
+//                                    toast3.show();
+//                                    System.out.println("ああああああああああああいいいいいいいいいああああああああああああああああああああああああああ");
+//                                }
+//                            };
+//                            mPostReference.addValueEventListener(postListener);
+//
+//
+
+
+
+//////////////////////////////////ここまで、  480
+
+
+//ああああああああhttp://gihyo.jp/dev/serial/01/firebase/0002?page=3ああああああああ
+
+//                            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+//                            DatabaseReference ref = database.getReference().child("users/shiroyama/name");
+//                           DatabaseReference usersRef = ref.child("users");
+//
+//                           // Firebase firebaseRef = new Firebase("https://chatapplication-879e5.firebaseio.com/");
+//                           // firebaseRef.child("users/shiroyama/name").addValueEventListener(new ValueEventListener() {
+//
+//                            DatabaseReference mPostReference = FirebaseDatabase.getInstance().getReference().child("users/shiroyama/name");
+//                           // DatabaseReference mPostReference = FirebaseDatabase.getInstance().getReference().child("users/shiroyama/name");
+//
+//                            ValueEventListener postListener = new ValueEventListener() {
+//                                @Override
+//                                public void onDataChange(DataSnapshot snapshot) {
+//                                    // "Fumihiko Shiroyama"
+//                                    Toast toast3 = Toast.makeText(LocationActivity.this,snapshot.getValue().toString() , Toast.LENGTH_SHORT);
+//                                    toast3.show();
+//                                }
+//
+//                                @Override
+//                                public void onCancelled(DatabaseError databaseError) {
+//                                   Toast toast3 = Toast.makeText(LocationActivity.this, "post.author", Toast.LENGTH_SHORT);
+//                                    toast3.show();
+//                                    }
+//                            };
+//                           // mPostReference.addValueEventListener(postListener);
+//                            usersRef.addValueEventListener(postListener);
+
+
+
+
+
+                            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                            DatabaseReference ref = database.getReference().child("users/shiroyama/name");
+                            DatabaseReference usersRef = ref.child("users");
+
+                            ref.child("users").setValue("aa");
+
+
+                            ValueEventListener postListener = new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    Toast toast3 = Toast.makeText(LocationActivity.this,snapshot.getValue().toString() , Toast.LENGTH_SHORT);
+                                    toast3.show();
+                                }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    DatabaseReference ref = database.getReference().child("users/shiroyama/name");
+                                    DatabaseReference usersRef = ref.child("users");
+                                    Toast toast3 = Toast.makeText(LocationActivity.this, "post.author:"+usersRef.toString(), Toast.LENGTH_SHORT);
+                                    toast3.show();
+                                }
+                            };
+                            usersRef.addValueEventListener(postListener);
+
+
+
+
+
+//ああああああああhttp://gihyo.jp/dev/serial/01/firebase/0002?page=3あああああああああ
+
+
+//                       String insertsql = "insert into user (username,password) " +
+//                                "values('" + getusername + "','" + password + "');";
+//                        db.execSQL(insertsql);
+//                        username = getusername; ここで、firebaseに入力した、nameで、spinnerにセットする
+                            spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+
+                            onStart();
+                            System.out.println("新規登録完了" + username);
+                            Toast toast1 = Toast.makeText(LocationActivity.this, "Firebase:登録完了しました。ログインしました", Toast.LENGTH_SHORT);
+                            toast1.show();
+
+
+                            //  }
                         }
+
+                        //FFFFFFFFFFFFFFFFFFFFFF
+                        ////////////FFFFFFFFFFFFFFFF
+
+//                        //Editから取得した2つをinsertしてる
+//                        EditText getusername2 = (EditText) layout.findViewById(R.id.username);
+//                        EditText getpassword2 = (EditText) layout.findViewById(R.id.password);
+//                        String getusername = getusername2.getText().toString();
+//                        String password = getpassword2.getText().toString();
+//                        getusername = getusername.trim();
+//                        password = password.trim();
+//                        if (getusername.length() == 0 || password.length() == 0) {
+//                            Toast toast = Toast.makeText(LocationActivity.this, "入力されていません", Toast.LENGTH_SHORT);
+//                            toast.show();
+//                        } else if (getusername.length() != 0 && password.length() != 0) {
+//                            MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
+//                            SQLiteDatabase db = helper.getWritableDatabase();
+//
+//  //取得
+//                            String sql = "select username,password from user where username = '" + getusername + "' and password = '" + password + "';";
+//                            Cursor c = db.rawQuery(sql, null);
+//                            c.moveToFirst();
+//                            String checkusername = null;
+//                            for (int i = 1; i <= c.getCount(); i++) {
+//                                checkusername = c.getString(0);
+//                            }
+//                            //こっちはusernameが使われてなければok
+//                            if (checkusername != null) {
+//                                Toast toast = Toast.makeText(LocationActivity.this, "usernameがすでに使われています", Toast.LENGTH_SHORT);
+//                                toast.show();
+//                            } else if (checkusername == null) {
+// //新規登録
+//                                //ここで、insert
+//                                String insertsql = "insert into user (username,password) " +
+//                                        "values('" + getusername + "','" + password + "');";
+//                                db.execSQL(insertsql);
+//                                username = getusername;
+//                                spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+//
+//                                onStart();
+//                                System.out.println("新規登録完了" + username);
+//                                Toast toast = Toast.makeText(LocationActivity.this, "登録完了しました。ログインしました", Toast.LENGTH_SHORT);
+//                                toast.show();
+//                            }
+//                        }
                     }
                 });
                 //ここで、別のメソッドを呼び出して、それにって、if(else)で、ボタンの数、
@@ -358,6 +621,7 @@ public class LocationActivity extends AppCompatActivity implements
                         String getusername = getusername2.getText().toString();
                         String password = getpassword2.getText().toString();
                         //データベースから取得してあればログイン
+//取得
                         String sql = "select username from user where username = '" + getusername + "' and password = '" + password + "';";
                         MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
                         SQLiteDatabase db = helper.getWritableDatabase();
@@ -438,12 +702,12 @@ public class LocationActivity extends AppCompatActivity implements
                         c.moveToFirst();
                         spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
                         //リスナーの終わり、
-                         arrayadapter();
+                        arrayadapter();
 
                         //やっぱり、latitude2にlatitudeを代入することが一番
                         ifelse2(spinnermath);
-                       latitude2=0;
-                       longitude2=0;
+                        latitude2=0;
+                        longitude2=0;
 
                     }
                 });
@@ -518,7 +782,7 @@ public class LocationActivity extends AppCompatActivity implements
             }
             return super.onOptionsItemSelected(item);
 
-           //---------------------------------------使用中のuserを削除--------------------------------------------------//
+            //---------------------------------------使用中のuserを削除--------------------------------------------------//
         } else if (id == R.id.action_deleteuser) {
             // カスタムビューを設定
             LayoutInflater inflater = (LayoutInflater) this.getSystemService(
@@ -605,70 +869,70 @@ public class LocationActivity extends AppCompatActivity implements
             builder.setView(layout);
 
 
-                if (username == null) {
-                    //ログインしてくださいと表示
-                    Toast toast = Toast.makeText(LocationActivity.this, "ログインしてください", Toast.LENGTH_SHORT);
-                    toast.show();
+            if (username == null) {
+                //ログインしてくださいと表示
+                Toast toast = Toast.makeText(LocationActivity.this, "ログインしてください", Toast.LENGTH_SHORT);
+                toast.show();
 
-                }else if (username != null) {
-                    builder.setPositiveButton("登録", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
+            }else if (username != null) {
+                builder.setPositiveButton("登録", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
 
 
-                            EditText getplacename = (EditText) layout.findViewById(R.id.placename);
-                            //入力した文字をトースト出力する
-                            placename = getplacename.getText().toString();
-                            placename = placename.trim();
-                            if (placename.length() == 0) {
-                                Toast toast = Toast.makeText(LocationActivity.this, "名称が入力されていません", Toast.LENGTH_SHORT);
-                                toast.show();
-                            } else if (placename.length() != 0) {
+                        EditText getplacename = (EditText) layout.findViewById(R.id.placename);
+                        //入力した文字をトースト出力する
+                        placename = getplacename.getText().toString();
+                        placename = placename.trim();
+                        if (placename.length() == 0) {
+                            Toast toast = Toast.makeText(LocationActivity.this, "名称が入力されていません", Toast.LENGTH_SHORT);
+                            toast.show();
+                        } else if (placename.length() != 0) {
 
-                                //ここに埋め込んだ
-                                MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
-                                SQLiteDatabase db = helper.getWritableDatabase();
+                            //ここに埋め込んだ
+                            MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
+                            SQLiteDatabase db = helper.getWritableDatabase();
 
-                                //ここのif()はselectのためじゃなくて、insertでlatitudeかlatitude2のどちらを使うかを判定するため、
-                                if (latitude2 != 0) {
-                                    String sql = "insert into favorite (username,placename,latitude,longitude) " +
-                                            "values('" + username + "','" + placename + "'," + latitude2 + "," + longitude2 + ");";
-                                    db.execSQL(sql);
-                                    //favoriteににinsetしたからfavoriteよんでspinner更新
-                                    spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
-                                    //onStart();
-                                    select(latitude2, longitude2, spinnermath);
-                                } else if (latitude2 == 0) {
-                                    String sql = "insert into favorite (username,placename,latitude,longitude) " +
-                                            "values('" + username + "','" + placename + "'" +
-                                            "," + latitude + "," + longitude + ");";
-                                    db.execSQL(sql);
-                                    select(latitude, longitude, spinnermath);
-                                    //favoriteににinsetしたからfavoriteよんでspinner更新
-                                    spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
-                                    //onStart();
-                                }
-                                arrayadapter();
-                                setSelection(spinner, placename);
-                                // 作ったspinnerの名前から、selectするmethodを呼び出してる
-                                //ここで、新しく登録したspinnerを選択するようにするから、違うやつ
-                                // spinner.setSelection(spinnerposition);
+                            //ここのif()はselectのためじゃなくて、insertでlatitudeかlatitude2のどちらを使うかを判定するため、
+                            if (latitude2 != 0) {
+                                String sql = "insert into favorite (username,placename,latitude,longitude) " +
+                                        "values('" + username + "','" + placename + "'," + latitude2 + "," + longitude2 + ");";
+                                db.execSQL(sql);
+                                //favoriteににinsetしたからfavoriteよんでspinner更新
+                                spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+                                //onStart();
+                                select(latitude2, longitude2, spinnermath);
+                            } else if (latitude2 == 0) {
+                                String sql = "insert into favorite (username,placename,latitude,longitude) " +
+                                        "values('" + username + "','" + placename + "'" +
+                                        "," + latitude + "," + longitude + ");";
+                                db.execSQL(sql);
+                                select(latitude, longitude, spinnermath);
+                                //favoriteににinsetしたからfavoriteよんでspinner更新
+                                spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
+                                //onStart();
                             }
+                            arrayadapter();
+                            setSelection(spinner, placename);
+                            // 作ったspinnerの名前から、selectするmethodを呼び出してる
+                            //ここで、新しく登録したspinnerを選択するようにするから、違うやつ
+                            // spinner.setSelection(spinnerposition);
                         }
+                    }
 
-                    });
+                });
 
-                    //getplacename
-                    AlertDialog alertDialog = builder.create();
-                    alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @Override
-                        public void onShow(DialogInterface arg0) {
-                            EditText getplacename = (EditText) layout.findViewById(R.id.placename);
-                            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputMethodManager.showSoftInput(getplacename, 0);
-                        }
-                    });
-                    alertDialog.show();
-                }
+                //getplacename
+                AlertDialog alertDialog = builder.create();
+                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface arg0) {
+                        EditText getplacename = (EditText) layout.findViewById(R.id.placename);
+                        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.showSoftInput(getplacename, 0);
+                    }
+                });
+                alertDialog.show();
+            }
 
         }
 
@@ -705,7 +969,7 @@ public class LocationActivity extends AppCompatActivity implements
 
         Alart alart=new Alart();
         if(alart.getUsername()==null) {
-           // if(getIntent().getStringExtra("sername")==null) {
+            // if(getIntent().getStringExtra("sername")==null) {
             //  }else if(getIntent().getStringExtra("sername")!=null){
         }else if(alart.getUsername()!=null){
             //String getusername = getIntent().getStringExtra("sername");
@@ -714,12 +978,12 @@ public class LocationActivity extends AppCompatActivity implements
             spinnerItems = favorite.favorite(LocationActivity.this, username);//これでok
             arrayadapter();
             String aaaa=null;
-           // getIntent().putExtra("username",aaaa);
+            // getIntent().putExtra("username",aaaa);
             alart.setUsername(aaaa);
         }
 
         Globals globals;
-       globals =(Globals)this.getApplication();
+        globals =(Globals)this.getApplication();
         if (globals.getOk() != null) {
             ok = globals.getOk();
             if (ok.equals("ok")) {
@@ -747,7 +1011,7 @@ public class LocationActivity extends AppCompatActivity implements
                 //select(latitude2, longitude2);
                 //一度latitudeとかにsetされれば、intentでMainに飛ばしてもいいならおk
             } else if (latitude2 == 0) {
-                 Toast toast = Toast.makeText(this, "コミュにティーを選んでください", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(this, "コミュにティーを選んでください", Toast.LENGTH_SHORT);
                 //標準でどこかを表示する
                 toast.show();
             }
@@ -776,12 +1040,12 @@ public class LocationActivity extends AppCompatActivity implements
                 //違うのを選択しても、これになるから、intentにnullをpushする
                 //spinner = (Spinner) findViewById(R.id.spinner);
 
-               if("null" != getIntent().getStringExtra("title")){
+                if("null" != getIntent().getStringExtra("title")){
                     String maptitle= getIntent().getStringExtra("title");
                     setSelection(spinner,maptitle);
-                   Intent intent = getIntent();
+                    Intent intent = getIntent();
                     intent.putExtra("title", "null");
-                     }
+                }
 
                 //あ
                 //削除の場合はいらない
@@ -843,8 +1107,8 @@ public class LocationActivity extends AppCompatActivity implements
                     //代わりに、MapActivityを呼ぶ
                     String one = "1";
                     String two = "2";
-                        Intent intent = new Intent(getApplication(), MapActivity.class);
-                        String activity = getIntent().getStringExtra("Activity");
+                    Intent intent = new Intent(getApplication(), MapActivity.class);
+                    String activity = getIntent().getStringExtra("Activity");
                     //でも一度マップでlongClickしてたら3になってるから、
                     //ちなみにonStartで123をifしてる
                     if (activity.equals("1")) {
@@ -937,11 +1201,11 @@ public class LocationActivity extends AppCompatActivity implements
                 } else if (choiceitem.equals("60m")) {
                     ifelse(bb);
                 } else if (choiceitem.equals("200m")) {
-                   ifelse(cc);
+                    ifelse(cc);
                 } else if (choiceitem.equals("1km")) {
                     ifelse(dd);
                 } else if (choiceitem.equals("3km")) {
-                   ifelse(ee);
+                    ifelse(ee);
                 }
             }
 
@@ -965,9 +1229,9 @@ public class LocationActivity extends AppCompatActivity implements
 
 
             @Override
-                public void onNothingSelected (AdapterView < ? > parent){
-                    System.out.println("選択されてません");
-                }
+            public void onNothingSelected (AdapterView < ? > parent){
+                System.out.println("選択されてません");
+            }
         });
         ArrayAdapter<String> madapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,spinnerMetter );
         madapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -991,7 +1255,7 @@ public class LocationActivity extends AppCompatActivity implements
                 } else if (comment.length() != 0) {
                     String insertsql = "insert into allidd (id) values ('0');";
                     //nologinidd
-                  // db.execSQL(insertsql);
+                    // db.execSQL(insertsql);
                     String selectidsql = "select id from allidd;";
                     Cursor selectid = db.rawQuery(selectidsql, null);
                     selectid.moveToFirst();
@@ -1028,7 +1292,7 @@ public class LocationActivity extends AppCompatActivity implements
                         int jj = idd;
                         String strid = String.valueOf(jj);
 
-                       if(toyou!=null) {
+                        if(toyou!=null) {
                             username = strid+toyou;
                         }else {
                             username = strid;
@@ -1175,194 +1439,194 @@ public class LocationActivity extends AppCompatActivity implements
                     c.moveToNext();
                 }
             }
-                //---------------------------selectした値が、updatedatabaseにもない場合----------------------------------------------//
-                //２つ目のselect//
-                //where句で、先ほど取得したidnumberxをセット neardbupdateにて
-                String sqlselectupdate = "select * from neardbupdate where neardbid == '" + idnumberx + "';";
-                Cursor cc = db.rawQuery(sqlselectupdate, null);
-                cc.moveToFirst();
-                //updateから取得できたってことは、もうupdateにinsert済みだから、<編集--を削除して、更新ボタンが押されたら、update
-                if (cc != null && cc.getCount() != 0) {
-                    System.out.println("cc.getCount:" + cc.getCount() + "(1172)");
+            //---------------------------selectした値が、updatedatabaseにもない場合----------------------------------------------//
+            //２つ目のselect//
+            //where句で、先ほど取得したidnumberxをセット neardbupdateにて
+            String sqlselectupdate = "select * from neardbupdate where neardbid == '" + idnumberx + "';";
+            Cursor cc = db.rawQuery(sqlselectupdate, null);
+            cc.moveToFirst();
+            //updateから取得できたってことは、もうupdateにinsert済みだから、<編集--を削除して、更新ボタンが押されたら、update
+            if (cc != null && cc.getCount() != 0) {
+                System.out.println("cc.getCount:" + cc.getCount() + "(1172)");
 //-----------更新済みdatabaseにこの情報は登録されてたから、<から右を削除--------------//
-                    String lastIndex = updatecomment.substring(0, updatecomment.lastIndexOf("<"));
-                    editText = (EditText) layout.findViewById(R.id.editor_text);
-                    // EditText にコメントの表示にふさわしくない部分を省略した、テキストを設定
-                    editText.setText(lastIndex);
-                    System.out.println("lastIndex:" + lastIndex + "(1179)");
-                } else if (cc.getCount() == 0) { //つまり、insertする必要  今回は、editTextの事だから、 何もしないでset
-                    //２回目の時に、cc.getCount()!=0になるから、そしたら、<編集----->を編集して、setすればいい
-                    //updatecommentも同じ
-                    editText.setText(updatecomment);
-                    //ここが呼ばれてるか重要
-                    //--------------------------大きいブロック、updbのupdateと、insert、neardbのupdateをおこなう-------------------------------------//
-              }
+                String lastIndex = updatecomment.substring(0, updatecomment.lastIndexOf("<"));
+                editText = (EditText) layout.findViewById(R.id.editor_text);
+                // EditText にコメントの表示にふさわしくない部分を省略した、テキストを設定
+                editText.setText(lastIndex);
+                System.out.println("lastIndex:" + lastIndex + "(1179)");
+            } else if (cc.getCount() == 0) { //つまり、insertする必要  今回は、editTextの事だから、 何もしないでset
+                //２回目の時に、cc.getCount()!=0になるから、そしたら、<編集----->を編集して、setすればいい
+                //updatecommentも同じ
+                editText.setText(updatecomment);
+                //ここが呼ばれてるか重要
+                //--------------------------大きいブロック、updbのupdateと、insert、neardbのupdateをおこなう-------------------------------------//
+            }
             editText.setSelection(editText.getText().length());
-                //-------------------------------------------------------ここまででselectする----------------------------------------------------//
-                // EditText のインプットタイプを設定
-                editText.setInputType(InputType.TYPE_CLASS_TEXT);
+            //-------------------------------------------------------ここまででselectする----------------------------------------------------//
+            // EditText のインプットタイプを設定
+            editText.setInputType(InputType.TYPE_CLASS_TEXT);
 
-                //-------------------------------------更新ボタン-----------------------------------------------//
-                builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String getedittext = editText.getText().toString();
-                        //---------------------------------select--------------------------//
-                        if (getedittext.length() == 0) {
-                            Toast toast = Toast.makeText(LocationActivity.this, "入力してください", Toast.LENGTH_SHORT);
-                            toast.show();
-                            //------------文字がEditTextに入ってるか-----------//
-                        } else if (getedittext.length() != 0) {
-                            System.out.println(updatedata + "," + updatetouchusername + "," + updatecomment + "," + updateid + "(1204)");
-                            String sqlselect = "select * from neardb where  idnumber == '" + updateid + "';";
-                            System.out.println("sqlsqlect" + sqlselect + "(1206)");
-                            MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
-                            SQLiteDatabase db = helper.getWritableDatabase();
-                            Cursor c = db.rawQuery(sqlselect, null);
-                            c.moveToFirst();
-                            if (c == null) {
-                                System.out.println("select neardb null(1212)");
-                            } else if (c != null) {
-                                for (int i = 0; i < c.getCount(); i++) {
-                                    datex = c.getString(0);//data
-                                    namex = c.getString(1); //name
-                                    commentx = c.getString(2); //comment
-                                    latitudex = c.getDouble(3);//latitude?
-                                    longitudex = c.getDouble(4);//longitude?
-                                    idnumberx = c.getString(5);//idnumber
-                                    c.moveToNext();
-                                    String datexx = "";
-                                    datexx += datex + ":";
-                                    System.out.println("謎datexx" + datexx + "(1224)");
-                                    System.out.println("datex:" + datex);
-                                    System.out.println("commentx:" + commentx + ",latitudex:" + latitudex + ",longitudex:" + longitudex);
-                                }
-                            }
-//--------------------------------------------selectした値が、updatedatabaseにもない場合----------------------------------------------//
-                            String sqlselectupdate = "select * from neardbupdate where  neardbid == '" + idnumberx + "';";
-                            Cursor cc = db.rawQuery(sqlselectupdate, null);
-                            cc.moveToFirst();
-                            Calendar calendar = Calendar.getInstance();
-                            int month = calendar.get(Calendar.MONTH) + 1;
-                            int day = calendar.get(Calendar.DATE);
-                            int hour = calendar.get(Calendar.HOUR);
-                            int minute = calendar.get(Calendar.MINUTE);
-                            datareset2 = "<編集" + month + "/" + day + ":" + hour + ":" + minute + ">";
-                            //updateから取得できたってことは、もうupdateにinsert済みだから、<編集--を削除して、更新ボタンが押されたら、update
-                            if (cc != null && cc.getCount() != 0) {
-
-                                //updateのneardbidがneardbのidnumberのとこのコメントをupdateしかし、できてない、
-                                //だけど、neardbのupdateはできてる
-                                System.out.println("cc!=null(1241)");
-                                //ここでは、neardbidを使い、incrementのidは、使わない
-                                String sqlupdate = "update neardbupdate set comment = '" + getedittext +datareset2 + "' where neardbid == '" + idnumberx + "';";
-                                System.out.println("sqlupdateした:" + sqlupdate + "(1249)");
-                                cc.close();
-                                MyOpenHelper helpers = new MyOpenHelper(LocationActivity.this);
-                                SQLiteDatabase dbs = helpers.getWritableDatabase();
-                                Cursor update = dbs.rawQuery(sqlupdate, null);
-                                update.moveToFirst();
-                                System.out.println("ゲットカウントupdate,neardbupdate:" + update.getCount());
-                                update.close();
-                                db.close();
-                                //------------一度もupdateしてないコメントは、ここに来るようになってる-------------//
-                            } else if (cc == null || cc.getCount() == 0) {
-                                //------------------ここで、insertしてる neardbupdateに---------------------//
-                                //getedittextの一番後ろの'を
-                                System.out.println("getedittext:"+getedittext);
-                                String updateinsert = "insert into neardbupdate (data,username,comment,latitude,longitude,neardbid)" +
-                                        " values ('" + datex + "','" + updatetouchusername + "','" + getedittext + datareset2 + "'," + latitudex + "," + longitudex + "," + idnumberx + ");";
-                                System.out.println("updateinsert:" + updateinsert + "(1259)");
-                                db.execSQL(updateinsert);
-                            }
-                        }
-//-------------------------------------------これは、普通にneardbのupdate--------------------------------------------------------//
-                        //idnumberxを、neardbに使うのはいいけど、updateの法に使うのはどう？
-                        String sqlupdate = "update neardb set comment = '" + getedittext + datareset2 + "' where  idnumber == '" + idnumberx + "';";
+            //-------------------------------------更新ボタン-----------------------------------------------//
+            builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    String getedittext = editText.getText().toString();
+                    //---------------------------------select--------------------------//
+                    if (getedittext.length() == 0) {
+                        Toast toast = Toast.makeText(LocationActivity.this, "入力してください", Toast.LENGTH_SHORT);
+                        toast.show();
+                        //------------文字がEditTextに入ってるか-----------//
+                    } else if (getedittext.length() != 0) {
+                        System.out.println(updatedata + "," + updatetouchusername + "," + updatecomment + "," + updateid + "(1204)");
+                        String sqlselect = "select * from neardb where  idnumber == '" + updateid + "';";
+                        System.out.println("sqlsqlect" + sqlselect + "(1206)");
                         MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
                         SQLiteDatabase db = helper.getWritableDatabase();
-                        Cursor update = db.rawQuery(sqlupdate, null);
-                        update.moveToFirst();
-                        System.out.println("update.getCount()" + update.getCount() + "1274)");
-                        update.close();
-                        db.close();
-                        System.out.println("latitudex:" + latitudex + "longitudex:" + longitudex + "(1280)");
-                        //selectしても、listは、更新されてない
-                        //   ---------------------そして、select----------------------------------------------------------------//
-                        select(latitudex, longitudex,spinnermath);
-                    }
-                });
-                //更新のボタンここまで
-
-                AlertDialog alertDialog = builder.create();
-                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface arg0) {
-                        EditText getedittext = (EditText) layout.findViewById(R.id.editor_text);
-                        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        inputMethodManager.showSoftInput(getedittext, 0);
-                    }
-                });
-                alertDialog.show();
-            } else {
-                String updatetouchusernamecopy=null;
-                //そして、"  "より前を取り出す
-                //これは、クラス変数にする　String updatetouchusernamescopy;
-                if (updatetouchusername.indexOf(">") != -1) {
-                    updatetouchusernamecopy = updatetouchusername.substring(0, updatetouchusername.indexOf(">"));
-                } else {
-                    //含まない場合は、そのまま使用
-                    updatetouchusernamecopy = updatetouchusername;
-                }
-                if (toyou == null) {
-                    toyou = ">" + updatetouchusernamecopy;
-                } else if (toyou.indexOf(">") != -1) {//含まれている場合は、すでにusernameは、入っているから、あとは、toutchusernameだけ
-                    System.out.println("4");
-                   if(toyou==null){
-                       System.out.println("toyou==null");
-                   }else if(updatetouchusernamecopy==null){
-                       System.out.println("updatecopy==null");
-                   }
-                    if (toyou.indexOf(updatetouchusernamecopy) != -1) {//すでに、この人へが、追加されている場合は、消す
-                        toyou = toyou.replaceFirst(updatetouchusernamecopy, ""); //一番最初の頭があったら、""にする
-                        System.out.println("すでにあるから、"+updatetouchusernamecopy+"を消す");
-                        if (toyou.indexOf(",,") != -1) {//つまり2人以上が選択されているということ
-                            toyou = toyou.replace(",,", ",");  //上のやつで、消したら、それを、今度は、,,を防ぐ
-                        }
-                        if (toyou.equals(">")) {//そして、もう、toyouが">"のみになったら、、toyouをnullにする
-                            toyou = null;
-                        } else { //つまり一つのusernameを入れて消した時は、>しかないから、charAt(1)はない状態
-                            char fo = toyou.charAt(1);
-                            //0は、まだ、>を消す前だから、1にする
-                            String stringfor = String.valueOf(fo);
-                            char la = toyou.charAt(toyou.length() - 1);
-                            String stringafter = String.valueOf(la);
-
-                            if (stringfor.equals(",")) {
-                                toyou = toyou.replaceFirst(",", "");
-                                System.out.println("前方一致:" + toyou);
-
-                            } else if (stringafter.equals(",")) {
-                                toyou = toyou.substring(0, toyou.lastIndexOf(","));
-                                System.out.println("後方一致:" + toyou);
+                        Cursor c = db.rawQuery(sqlselect, null);
+                        c.moveToFirst();
+                        if (c == null) {
+                            System.out.println("select neardb null(1212)");
+                        } else if (c != null) {
+                            for (int i = 0; i < c.getCount(); i++) {
+                                datex = c.getString(0);//data
+                                namex = c.getString(1); //name
+                                commentx = c.getString(2); //comment
+                                latitudex = c.getDouble(3);//latitude?
+                                longitudex = c.getDouble(4);//longitude?
+                                idnumberx = c.getString(5);//idnumber
+                                c.moveToNext();
+                                String datexx = "";
+                                datexx += datex + ":";
+                                System.out.println("謎datexx" + datexx + "(1224)");
+                                System.out.println("datex:" + datex);
+                                System.out.println("commentx:" + commentx + ",latitudex:" + latitudex + ",longitudex:" + longitudex);
                             }
                         }
-                    } else if (toyou.indexOf(updatetouchusernamecopy) == -1) {//まだ、このユーザーが含まれていなかった場合は、普通に追加
-                        toyou += "," + updatetouchusername;
+//--------------------------------------------selectした値が、updatedatabaseにもない場合----------------------------------------------//
+                        String sqlselectupdate = "select * from neardbupdate where  neardbid == '" + idnumberx + "';";
+                        Cursor cc = db.rawQuery(sqlselectupdate, null);
+                        cc.moveToFirst();
+                        Calendar calendar = Calendar.getInstance();
+                        int month = calendar.get(Calendar.MONTH) + 1;
+                        int day = calendar.get(Calendar.DATE);
+                        int hour = calendar.get(Calendar.HOUR);
+                        int minute = calendar.get(Calendar.MINUTE);
+                        datareset2 = "<編集" + month + "/" + day + ":" + hour + ":" + minute + ">";
+                        //updateから取得できたってことは、もうupdateにinsert済みだから、<編集--を削除して、更新ボタンが押されたら、update
+                        if (cc != null && cc.getCount() != 0) {
+
+                            //updateのneardbidがneardbのidnumberのとこのコメントをupdateしかし、できてない、
+                            //だけど、neardbのupdateはできてる
+                            System.out.println("cc!=null(1241)");
+                            //ここでは、neardbidを使い、incrementのidは、使わない
+                            String sqlupdate = "update neardbupdate set comment = '" + getedittext +datareset2 + "' where neardbid == '" + idnumberx + "';";
+                            System.out.println("sqlupdateした:" + sqlupdate + "(1249)");
+                            cc.close();
+                            MyOpenHelper helpers = new MyOpenHelper(LocationActivity.this);
+                            SQLiteDatabase dbs = helpers.getWritableDatabase();
+                            Cursor update = dbs.rawQuery(sqlupdate, null);
+                            update.moveToFirst();
+                            System.out.println("ゲットカウントupdate,neardbupdate:" + update.getCount());
+                            update.close();
+                            db.close();
+                            //------------一度もupdateしてないコメントは、ここに来るようになってる-------------//
+                        } else if (cc == null || cc.getCount() == 0) {
+                            //------------------ここで、insertしてる neardbupdateに---------------------//
+                            //getedittextの一番後ろの'を
+                            System.out.println("getedittext:"+getedittext);
+                            String updateinsert = "insert into neardbupdate (data,username,comment,latitude,longitude,neardbid)" +
+                                    " values ('" + datex + "','" + updatetouchusername + "','" + getedittext + datareset2 + "'," + latitudex + "," + longitudex + "," + idnumberx + ");";
+                            System.out.println("updateinsert:" + updateinsert + "(1259)");
+                            db.execSQL(updateinsert);
+                        }
                     }
+//-------------------------------------------これは、普通にneardbのupdate--------------------------------------------------------//
+                    //idnumberxを、neardbに使うのはいいけど、updateの法に使うのはどう？
+                    String sqlupdate = "update neardb set comment = '" + getedittext + datareset2 + "' where  idnumber == '" + idnumberx + "';";
+                    MyOpenHelper helper = new MyOpenHelper(LocationActivity.this);
+                    SQLiteDatabase db = helper.getWritableDatabase();
+                    Cursor update = db.rawQuery(sqlupdate, null);
+                    update.moveToFirst();
+                    System.out.println("update.getCount()" + update.getCount() + "1274)");
+                    update.close();
+                    db.close();
+                    System.out.println("latitudex:" + latitudex + "longitudex:" + longitudex + "(1280)");
+                    //selectしても、listは、更新されてない
+                    //   ---------------------そして、select----------------------------------------------------------------//
+                    select(latitudex, longitudex,spinnermath);
                 }
-                //ここまでが、>が含まれているコード
-                if (toyou == null) {
-                    Toast toasttoyou = Toast.makeText(this, "宛先は選択されてません", Toast.LENGTH_SHORT);
-                    toasttoyou.show();
-                } else {
-                    String cuttoyou = (toyou.substring(toyou.indexOf(">") + 1));
-                    //左側(username)を切る選択者だけにする
-                    Toast toasttoyou = Toast.makeText(this, "コメント先として" + cuttoyou + "を選択中", Toast.LENGTH_SHORT);
-                    toasttoyou.show();
+            });
+            //更新のボタンここまで
+
+            AlertDialog alertDialog = builder.create();
+            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg0) {
+                    EditText getedittext = (EditText) layout.findViewById(R.id.editor_text);
+                    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.showSoftInput(getedittext, 0);
                 }
-                //usernameに" "と、> と、 , と、数字のみは使えなくする
+            });
+            alertDialog.show();
+        } else {
+            String updatetouchusernamecopy=null;
+            //そして、"  "より前を取り出す
+            //これは、クラス変数にする　String updatetouchusernamescopy;
+            if (updatetouchusername.indexOf(">") != -1) {
+                updatetouchusernamecopy = updatetouchusername.substring(0, updatetouchusername.indexOf(">"));
+            } else {
+                //含まない場合は、そのまま使用
+                updatetouchusernamecopy = updatetouchusername;
             }
+            if (toyou == null) {
+                toyou = ">" + updatetouchusernamecopy;
+            } else if (toyou.indexOf(">") != -1) {//含まれている場合は、すでにusernameは、入っているから、あとは、toutchusernameだけ
+                System.out.println("4");
+                if(toyou==null){
+                    System.out.println("toyou==null");
+                }else if(updatetouchusernamecopy==null){
+                    System.out.println("updatecopy==null");
+                }
+                if (toyou.indexOf(updatetouchusernamecopy) != -1) {//すでに、この人へが、追加されている場合は、消す
+                    toyou = toyou.replaceFirst(updatetouchusernamecopy, ""); //一番最初の頭があったら、""にする
+                    System.out.println("すでにあるから、"+updatetouchusernamecopy+"を消す");
+                    if (toyou.indexOf(",,") != -1) {//つまり2人以上が選択されているということ
+                        toyou = toyou.replace(",,", ",");  //上のやつで、消したら、それを、今度は、,,を防ぐ
+                    }
+                    if (toyou.equals(">")) {//そして、もう、toyouが">"のみになったら、、toyouをnullにする
+                        toyou = null;
+                    } else { //つまり一つのusernameを入れて消した時は、>しかないから、charAt(1)はない状態
+                        char fo = toyou.charAt(1);
+                        //0は、まだ、>を消す前だから、1にする
+                        String stringfor = String.valueOf(fo);
+                        char la = toyou.charAt(toyou.length() - 1);
+                        String stringafter = String.valueOf(la);
+
+                        if (stringfor.equals(",")) {
+                            toyou = toyou.replaceFirst(",", "");
+                            System.out.println("前方一致:" + toyou);
+
+                        } else if (stringafter.equals(",")) {
+                            toyou = toyou.substring(0, toyou.lastIndexOf(","));
+                            System.out.println("後方一致:" + toyou);
+                        }
+                    }
+                } else if (toyou.indexOf(updatetouchusernamecopy) == -1) {//まだ、このユーザーが含まれていなかった場合は、普通に追加
+                    toyou += "," + updatetouchusername;
+                }
+            }
+            //ここまでが、>が含まれているコード
+            if (toyou == null) {
+                Toast toasttoyou = Toast.makeText(this, "宛先は選択されてません", Toast.LENGTH_SHORT);
+                toasttoyou.show();
+            } else {
+                String cuttoyou = (toyou.substring(toyou.indexOf(">") + 1));
+                //左側(username)を切る選択者だけにする
+                Toast toasttoyou = Toast.makeText(this, "コメント先として" + cuttoyou + "を選択中", Toast.LENGTH_SHORT);
+                toasttoyou.show();
+            }
+            //usernameに" "と、> と、 , と、数字のみは使えなくする
         }
+    }
 
 
     //これでtureが返されれば、全部数字だから、
@@ -1586,7 +1850,7 @@ public class LocationActivity extends AppCompatActivity implements
     }
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     private static final String DIALOG_ERROR = "dialog_error";
-   ////////////別
+    ////////////別
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         if (mResolvingError) {
@@ -1636,25 +1900,25 @@ public class LocationActivity extends AppCompatActivity implements
 
 //-------------------------------------------------------select()---------------------------------------------------------------------//
 
-   public void select(double latitude,double longitude,double spinnermath){
-       adapterlist = new ArrayList<>();
-      select selectclass=new select();
-             selectclass.select(latitude,longitude,this,adapterlist,spinnermath);
-       if(selectclass.select(latitude,longitude,this,adapterlist,spinnermath)!=null) {
-           adapterlist =selectclass.select(latitude,longitude,this,adapterlist,spinnermath);
-       }
-       listView = (ListView) findViewById(R.id.list_view);
-       if(adapterlist!=null) {
-           ArrayListAdapter adapter = new ArrayListAdapter(LocationActivity.this, adapterlist);
-           adapter.setAdapterList(adapterlist);
-           listView.setAdapter(adapter);
-          //adapter.notifyDataSetChanged();
-          // System.out.println("selectが呼ばれたりして、adapter.notifyDataSetChanged();された");
-       }
-       listView.setOnItemClickListener(this);
-       listView.setOnItemLongClickListener(this);
-       //onStart();
-   }
+    public void select(double latitude,double longitude,double spinnermath){
+        adapterlist = new ArrayList<>();
+        select selectclass=new select();
+        selectclass.select(latitude,longitude,this,adapterlist,spinnermath);
+        if(selectclass.select(latitude,longitude,this,adapterlist,spinnermath)!=null) {
+            adapterlist =selectclass.select(latitude,longitude,this,adapterlist,spinnermath);
+        }
+        listView = (ListView) findViewById(R.id.list_view);
+        if(adapterlist!=null) {
+            ArrayListAdapter adapter = new ArrayListAdapter(LocationActivity.this, adapterlist);
+            adapter.setAdapterList(adapterlist);
+            listView.setAdapter(adapter);
+            //adapter.notifyDataSetChanged();
+            // System.out.println("selectが呼ばれたりして、adapter.notifyDataSetChanged();された");
+        }
+        listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
+        //onStart();
+    }
 }
 
 //--------------------------------------------------自動更新ができなかった時用のTimer----------------------------------------------------//
