@@ -30,33 +30,35 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //       db.execSQL("delete from neardb;");
+//       db.execSQL("delete from neardbupdate;");
+
+
+
+
         SQLiteDatabase db = null;
         MyOpenHelper helper = new MyOpenHelper(MainActivity.this);
         db = helper.getWritableDatabase();
 
-        //あ
-
-      // db.execSQL("delete from neardb;");
-      // db.execSQL("delete from neardbupdate;");
-
-       // db.execSQL(CREATE_TABLE5);
+       db.execSQL(CREATE_TABLE5);
  //ここCREATE_TABLE
-      // db.execSQL(CREATE_TABLE);
+       db.execSQL(CREATE_TABLE);
 //ここCREATE_TABLE2
-      //db.execSQL(CREATE_TABLE2);
-      // db.execSQL(CREATE_TABLE3);
+      db.execSQL(CREATE_TABLE2);
+      db.execSQL(CREATE_TABLE3);
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-       //db.execSQL(CREATE_TABLE_UPDATE);
+        db.execSQL(CREATE_TABLE_UPDATE);
         ///////////////////////////////////////////
-       // db.execSQL(CREATE_TABLE4);             //ここここ
+       db.execSQL(CREATE_TABLE4);             //ここここ
 
         //別のとこにもある
-       // db.execSQL("delete from allidd;");
-       // String insertsql = "insert into allidd (id) values ('0');";
+       db.execSQL("delete from allidd;");
+       String insertsql = "insert into allidd (id) values ('0');";
         //nologinidd
-      //  db.execSQL(insertsql);
+       db.execSQL(insertsql);
+
 
     }
 
