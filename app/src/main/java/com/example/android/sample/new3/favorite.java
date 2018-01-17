@@ -49,6 +49,7 @@ public class favorite   {
                 System.out.println("mam" + mam);
             }
 
+
             c.close();
             db.close();
         } else if (username == null) {

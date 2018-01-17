@@ -1901,7 +1901,7 @@ public class LocationActivity extends AppCompatActivity implements
 //-------------------------------------------------------select()---------------------------------------------------------------------//
 
     public void select(double latitude,double longitude,double spinnermath){
-        adapterlist = new ArrayList<>();
+         adapterlist = new ArrayList<>();
         select selectclass=new select();
         selectclass.select(latitude,longitude,this,adapterlist,spinnermath);
         if(selectclass.select(latitude,longitude,this,adapterlist,spinnermath)!=null) {
