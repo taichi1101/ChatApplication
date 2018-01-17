@@ -36,19 +36,19 @@ public class MainActivity extends AppCompatActivity {
 
         //あ
 
-       // db.execSQL("delete from neardb;");
-       //db.execSQL("delete from neardbupdate;");
+      // db.execSQL("delete from neardb;");
+      // db.execSQL("delete from neardbupdate;");
 
        // db.execSQL(CREATE_TABLE5);
  //ここCREATE_TABLE
-       //db.execSQL(CREATE_TABLE);
+      // db.execSQL(CREATE_TABLE);
 //ここCREATE_TABLE2
-     // db.execSQL(CREATE_TABLE2);
+      //db.execSQL(CREATE_TABLE2);
       // db.execSQL(CREATE_TABLE3);
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //  db.execSQL(CREATE_TABLE_UPDATE);
+       //db.execSQL(CREATE_TABLE_UPDATE);
         ///////////////////////////////////////////
        // db.execSQL(CREATE_TABLE4);             //ここここ
 
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
        // db.execSQL("delete from allidd;");
        // String insertsql = "insert into allidd (id) values ('0');";
         //nologinidd
-       //  db.execSQL(insertsql);
+      //  db.execSQL(insertsql);
 
     }
 
